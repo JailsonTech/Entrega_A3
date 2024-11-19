@@ -1,4 +1,5 @@
 const Cliente = require('../models/clientes'); 
+const { Sequelize } = require('sequelize');
 
 // Função para criar um novo cliente
 exports.criarCliente = async (req, res) => {
@@ -16,16 +17,31 @@ exports.criarCliente = async (req, res) => {
         // Retornando o cliente criado com status 201 (Created)
         res.status(201).json(novoCliente);
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao criar cliente', error });
     }
 };
 
-// Função para obter todos os clientes
+// Função para obter todos os clientes ou buscar clientes pelo nome
 exports.obterClientes = async (req, res) => {
     try {
-        const clientes = await Cliente.findAll(); // Buscar todos os clientes no banco
+        const { nome } = req.params; // Pegando o nome da URL (se existir)
+
+        let clientes;
+
+        if (nome) {
+            // Se o parâmetro 'nome' foi passado, filtra os clientes pelo nome
+            clientes = await Cliente.findAll({
+                where: {
+                    nome: {
+                        [Sequelize.Op.iLike]: `%${nome}%`, // Usando iLike para busca insensível a maiúsculas/minúsculas
+                    },
+                },
+            });
+        } else {
+            // Caso contrário, retorna todos os clientes
+            clientes = await Cliente.findAll();
+        }
 
         if (clientes.length === 0) {
             return res.status(404).json({ message: 'Nenhum cliente encontrado' });
@@ -34,7 +50,6 @@ exports.obterClientes = async (req, res) => {
         // Retornando os clientes encontrados com status 200 (OK)
         res.status(200).json(clientes);
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao obter clientes', error });
     }
@@ -64,7 +79,6 @@ exports.atualizarCliente = async (req, res) => {
         // Retornando o cliente atualizado
         res.status(200).json(cliente);
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao atualizar cliente', error });
     }
@@ -88,7 +102,6 @@ exports.deletarCliente = async (req, res) => {
         // Retornando resposta sem conteúdo (status 204)
         res.status(204).send();
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao deletar cliente', error });
     }
