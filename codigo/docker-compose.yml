@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .  # O contexto é a raiz do diretório (supermercado-api)
+      dockerfile: docker/Dockerfile  # Caminho para o Dockerfile da API
+    image: supermercado-api
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://usuario:usuario@db:5432/db-postgres
+    depends_on:
+      - db  # A API depende do banco de dados
+    command: ["npm", "start"]
+    networks:
+      - app-network
+    restart: always
+    entrypoint: ["/usr/src/app/wait-for-db.sh", "npm", "start"]
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: usuario
+      POSTGRES_PASSWORD: usuario
+      POSTGRES_DB: db-postgres
+    volumes:
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,33 @@
+# imagem base do Node.js
+FROM node:20.17.0
+
+# Instala o cliente PostgreSQL para ter acesso ao comando pg_isready
+RUN apt-get update && apt-get install -y postgresql-client
+
+# Defina o diretório de trabalho dentro do contêiner
+WORKDIR /usr/src/app
+
+# Copia o package.json e o package-lock.json da raiz do projeto para o contêiner
+COPY ../package.json ./  
+COPY ../package-lock.json ./  
+
+# Instala as dependências
+RUN npm install
+
+# Copie o restante dos arquivos de código para o contêiner
+COPY ../src ./src
+
+# Copiar o script wait-for-db.sh para o contêiner
+COPY ./docker/wait-for-db.sh /usr/src/app/wait-for-db.sh
+
+# Tornar o script executável
+RUN chmod +x /usr/src/app/wait-for-db.sh
+
+# Usar o script wait-for-db.sh como ponto de entrada e, em seguida, iniciar a aplicação
+ENTRYPOINT ["/usr/src/app/wait-for-db.sh"]
+
+# Passar o comando para iniciar a aplicação após o wait-for-db.sh ser executado
+CMD ["npm", "start"]
+
+# Exponha a porta em que a aplicação irá rodar
+EXPOSE 3000
