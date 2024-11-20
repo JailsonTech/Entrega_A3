@@ -1,5 +1,5 @@
-// src/controllers/produtoController.js
 const Produto = require('../models/produtos'); // Importa o modelo de Produtos
+const { Sequelize } = require('sequelize'); // Importa Sequelize para o operador Op
 
 // Função para criar um novo produto
 exports.criarProduto = async (req, res) => {
@@ -17,16 +17,31 @@ exports.criarProduto = async (req, res) => {
         // Retornando o produto criado com status 201 (Created)
         res.status(201).json(novoProduto);
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao criar produto', error });
     }
 };
 
-// Função para obter todos os produtos
+// Função para obter todos os produtos ou buscar produtos pelo nome
 exports.obterProdutos = async (req, res) => {
     try {
-        const produtos = await Produto.findAll(); // Buscar todos os produtos no banco
+        const { nome } = req.params; // Pegando o nome da URL (se existir)
+
+        let produtos;
+
+        if (nome) {
+            // Se o parâmetro 'nome' foi passado, filtra os produtos pelo nome
+            produtos = await Produto.findAll({
+                where: {
+                    nome: {
+                        [Sequelize.Op.iLike]: `%${nome}%`, // Usando iLike para busca insensível a maiúsculas/minúsculas
+                    },
+                },
+            });
+        } else {
+            // Caso contrário, retorna todos os produtos
+            produtos = await Produto.findAll();
+        }
 
         if (produtos.length === 0) {
             return res.status(404).json({ message: 'Nenhum produto encontrado' });
@@ -35,7 +50,6 @@ exports.obterProdutos = async (req, res) => {
         // Retornando os produtos encontrados com status 200 (OK)
         res.status(200).json(produtos);
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao obter produtos', error });
     }
@@ -65,7 +79,6 @@ exports.atualizarProduto = async (req, res) => {
         // Retornando o produto atualizado
         res.status(200).json(produto);
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao atualizar produto', error });
     }
@@ -89,7 +102,6 @@ exports.deletarProduto = async (req, res) => {
         // Retornando resposta sem conteúdo (status 204)
         res.status(204).send();
     } catch (error) {
-        // Em caso de erro, retornamos uma mensagem de erro
         console.error(error);
         res.status(500).json({ message: 'Erro ao deletar produto', error });
     }
