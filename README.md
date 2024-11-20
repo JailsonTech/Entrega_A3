@@ -50,7 +50,6 @@ http://localhost:3000/api/vendedores/julia
 "estoque": 60
 }
 
-
 9. # PUT ..............................
 
 # http://localhost:3000/api/produtos/id   
