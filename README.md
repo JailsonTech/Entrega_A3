@@ -11,28 +11,30 @@ Atividade para avaliação Facs
 
 4. execute o crud no insominia, postman ou thunder client (vscode)
 
-...............COMANDOS SQL...............
+...............EXEMPLOS COMANDOS SQL...............
 
 5. # OBTER TUDO - GET .............................
 http://localhost:3000/api/clientes
 http://localhost:3000/api/produtos
 http://localhost:3000/api/vendedores
 
-6. # DELETE (PELO id - escolha)........
-http://localhost:3000/api/clientes/1
-http://localhost:3000/api/produtos/1
-http://localhost:3000/api/vendedores/1
+6. # OBTER PELO NOME .............................
 
-7. # INSERIR - POST ..............................
+7. # DELETE PELO id ou cpf(clientes)........
+http://localhost:3000/api/clientes/claudia
+http://localhost:3000/api/produtos/farinha
+http://localhost:3000/api/vendedores/julia
 
-# http://localhost:3000/api/vendedores...
+8. # POST ..............................
+
+# http://localhost:3000/api/vendedores
 
 {    
    "nome": "Claudia",
    "cpf": "232.232.232-23"    
 }
 
-# http://localhost:3000/api/clientes ...
+# http://localhost:3000/api/clientes 
 
 {
    "nome": "Fernando",
@@ -40,7 +42,7 @@ http://localhost:3000/api/vendedores/1
    "endereco": "Endereço 8"
 }
 
-# http://localhost:3000/api/produtos ...
+# http://localhost:3000/api/produtos 
 
 {
 "nome": "farinha",
@@ -49,9 +51,9 @@ http://localhost:3000/api/vendedores/1
 }
 
 
-7. # MUDAR, ATUALIZAR - PUT ..............................
+9. # PUT ..............................
 
-# http://localhost:3000/api/produtos   ou (/clientes, /vendedores)
+# http://localhost:3000/api/produtos/id   
 
 {
     "nome": "feijão",
