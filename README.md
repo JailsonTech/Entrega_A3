@@ -50,12 +50,22 @@ http://localhost:3000/api/vendedores/julia
 "estoque": 60
 }
 
-9. # PUT ..............................
+9. # ATUALIZAR PRODUTOS..............................
 
-# http://localhost:3000/api/produtos/id   
+PUT http://localhost:3000/api/produtos/id 
+PUT http://localhost:3000/api/produtos/item/farinha  
 
 {
-    "nome": "feijão",
     "preco": "8.20",
     "estoque": 120
   }
+
+# REALIZAR UMA VENDA................................
+
+POST http://localhost:3000/api/vendas
+{
+    "clienteId": 1,
+    "vendedorId": 2,
+    "produtoId": 3,
+    "quantidade": 2
+}
