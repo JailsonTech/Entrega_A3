@@ -1,10 +1,9 @@
-//src/index.js
-
 const express = require('express');
 const cors = require('cors');
 const clienteRoutes = require('./routes/clienteRoutes');
 const vendedorRoutes = require('./routes/vendedorRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
+const vendaRoutes = require('./routes/vendaRoutes'); // Importando as rotas de vendas
 const sequelize = require('./utils/database');
 
 const app = express();
@@ -17,6 +16,7 @@ app.use(express.json());    // Faz o parse do corpo da requisição como JSON
 app.use('/api/clientes', clienteRoutes);    // Rota para clientes
 app.use('/api/vendedores', vendedorRoutes); // Rota para vendedores
 app.use('/api/produtos', produtoRoutes);   // Rota para produtos
+app.use('/api/vendas', vendaRoutes);       // Rota para vendas
 
 // Função para verificar a conexão com o banco
 const checkDbConnection = async () => {
