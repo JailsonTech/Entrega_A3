@@ -9,17 +9,23 @@ const Produtos = sequelize.define('produtos', {
         primaryKey: true,
         autoIncrement: true,
     },
-    nome: {
+    item: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     preco: {
         type: DataTypes.DECIMAL,
         allowNull: false,
+        validate: {
+            min: 0.01, // Garante que o preço seja maior que 0
+        },
     },
     estoque: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        validate: {
+            min: 0, // Garante que o estoque não seja negativo
+        },
     }
 }, {
     tableName: 'produtos',  // Tabela com o nome em minúsculo
