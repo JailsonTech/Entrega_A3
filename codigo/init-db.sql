@@ -23,15 +23,15 @@ CREATE TABLE produtos (
 
 -- Inserir dados iniciais
 INSERT INTO clientes (nome, cpf, endereco) VALUES
-('Jailson', '111.222.333-44', 'Endereço 1'),
-('Carlos', '555.666.777-88', 'Endereço 2'),
-('Roberto', '777.888.999-00', 'Endereço 3'),
-('Julia', '245.898.789-08', 'Endereço 3'),
-('Larissa', '734.848.949-40', 'Endereço 4');
+('Jailson', '11122233344', 'Endereço 1'),
+('Carlos', '55566677788', 'Endereço 2'),
+('Roberto', '77788899900', 'Endereço 3'),
+('Julia', '24589878908', 'Endereço 3'),
+('Larissa', '73484894940', 'Endereço 4');
 
 INSERT INTO vendedores (nome, cpf) VALUES
-('Alberto', '157.177.158-61'),
-('Suzana', '272.852.292-26');
+('Alberto', '15717715861'),
+('Suzana', '27285229226');
 
 INSERT INTO produtos (item, preco, estoque) VALUES
 ('feijão', 6.99, 100),

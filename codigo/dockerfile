@@ -18,7 +18,7 @@ RUN npm install
 COPY ../src ./src
 
 # Copiar o script wait-for-db.sh para o contêiner
-COPY ./docker/wait-for-db.sh /usr/src/app/wait-for-db.sh
+COPY ./src/wait-for-db.sh /usr/src/app/wait-for-db.sh
 
 # Tornar o script executável
 RUN chmod +x /usr/src/app/wait-for-db.sh

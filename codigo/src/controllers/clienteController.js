@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize'); // Importando Sequelize para usar os operadores
+const { Sequelize, Op } = require('sequelize'); // Importando Sequelize para usar os operadores
 const Cliente = require('../models/clientes'); // Importando o modelo Cliente
 
 // Função para criar um novo cliente
@@ -39,32 +39,46 @@ exports.criarCliente = async (req, res) => {
 };
 
 
-// Função para obter clientes
+// Função para obter clientes por nome ou CPF
 exports.obterClientes = async (req, res) => {
     try {
-        const { nome } = req.params; // Pegando o nome da URL, se fornecido
+        const { nome, cpf } = req.params; // Pegando nome e CPF da URL, se fornecido
 
         let clientes;
 
-        if (nome) {
+        if (cpf) {
+            // Remover a formatação do CPF (se existir) para garantir que estamos trabalhando com números puros
+            const cpfFormatado = cpf.replace(/[^\d]+/g, ''); // Remove caracteres não numéricos como "." e "-"
+            
+            console.log("CPF formatado:", cpfFormatado); // Depuração: exibe o CPF antes de fazer a consulta
+
+            // Se o CPF for fornecido, busca pelo CPF exato
+            clientes = await Cliente.findAll({
+                where: {
+                    cpf: cpfFormatado // Busca pelo CPF sem formatação
+                }
+            });
+        } else if (nome) {
             // Se o nome for fornecido, busca pelo nome de forma insensível a maiúsculas/minúsculas
             clientes = await Cliente.findAll({
                 where: {
                     nome: {
-                        [Sequelize.Op.iLike]: `%${nome}%` // iLike para busca insensível a maiúsculas e minúsculas
+                        [Op.iLike]: `%${nome}%` // Busca insensível a maiúsculas e minúsculas
                     }
                 }
             });
         } else {
-            // Se não for fornecido, retorna todos os clientes
+            // Se nem nome nem CPF forem fornecidos, retorna todos os clientes
             clientes = await Cliente.findAll();
         }
 
+        // Verificar se não há clientes encontrados
         if (clientes.length === 0) {
             return res.status(404).json({ message: 'Nenhum cliente encontrado' });
         }
 
-        res.status(200).json(clientes);
+        // Retorna os clientes encontrados
+        res.status(200).json(clientes); 
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao obter clientes', error });

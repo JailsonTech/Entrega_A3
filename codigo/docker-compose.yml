@@ -1,20 +1,22 @@
 services:
   api:
     build:
-      context: .  # O contexto é a raiz do diretório (supermercado-api)
-      dockerfile: docker/Dockerfile  # Caminho para o Dockerfile da API
-    image: supermercado-api
-    ports:
-      - "3000:3000"
+      context: .  # O contexto é o diretório atual, onde está o Dockerfile
     environment:
       - DATABASE_URL=postgresql://usuario:usuario@db:5432/db-postgres
     depends_on:
       - db  # A API depende do banco de dados
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app  # Monta o diretório do código da aplicação no contêiner
+      - /usr/src/app/node_modules  # Garante que o node_modules será criado dentro do contêiner
+    working_dir: /usr/src/app  # Define o diretório de trabalho dentro do contêiner
     command: ["npm", "start"]
+    entrypoint: ["/usr/src/app/src/wait-for-db.sh", "npm", "start"]  # caminho para o wait-for-db.sh
     networks:
       - app-network
     restart: always
-    entrypoint: ["/usr/src/app/wait-for-db.sh", "npm", "start"]
 
   db:
     image: postgres:13
@@ -23,7 +25,7 @@ services:
       POSTGRES_PASSWORD: usuario
       POSTGRES_DB: db-postgres
     volumes:
-      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - /init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # caminho do arquivo init_db.sql
     ports:
       - "5432:5432"
     networks:

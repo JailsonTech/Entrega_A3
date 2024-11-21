@@ -6,7 +6,10 @@ const clienteController = require('../controllers/clienteController');
 router.post('/', clienteController.criarCliente);
 
 // Rota para obter todos os clientes ou buscar clientes pelo nome
-router.get('/:nome?', clienteController.obterClientes);  // Aqui, o parâmetro 'nome' é opcional
+router.get('/nome/:nome?', clienteController.obterClientes);  // Rota para buscar por nome (opcional)
+
+// Rota para obter clientes pelo CPF
+router.get('/cpf/:cpf', clienteController.obterClientes); // Rota para buscar por CPF
 
 // Rota para atualizar um cliente
 router.put('/:id', clienteController.atualizarCliente);

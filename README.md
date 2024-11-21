@@ -3,27 +3,29 @@ Atividade para avaliação Facs
 
 # Procedimentos
 
-1. Instale o node_modules na pasta codigo
+1. Estando na pasta 'codigo' execute ' docker-compose up --build -d '
 
-2. Estando na pasta 'codigo' execute o docker-compose up --build -d
+2. instale o postgres no dbeaver ou outra ferramenta de sua preferência para acompanhar o crud. Se quiser
 
-3. instale o postgres no dbeaver ou outra ferramenta de sua preferência para acompanhar o crud. Se quiser
-
-4. execute o crud no insominia, postman ou thunder client (vscode)
+3. execute o crud no insominia, postman ou thunder client (vscode)
 
 ...............EXEMPLOS COMANDOS SQL...............
 
 5. # OBTER TUDO - GET .............................
-http://localhost:3000/api/clientes
-http://localhost:3000/api/produtos
-http://localhost:3000/api/vendedores
+http://localhost:3000/clientes
+http://localhost:3000/produtos
+http://localhost:3000/vendedores
+
+# OBTER CLIENTES PELO NOME........................
+http://localhost:3000/clientes/nome/roberto
+http://localhost:3000/produtos/feijão
 
 6. # OBTER PELO NOME .............................
 
 7. # DELETE PELO id ou cpf(clientes)........
-http://localhost:3000/api/clientes/claudia
-http://localhost:3000/api/produtos/farinha
-http://localhost:3000/api/vendedores/julia
+http://localhost:3000/clientes/claudia
+http://localhost:3000/produtos/farinha
+http://localhost:3000/vendedores/julia
 
 8. # POST ..............................
 
@@ -52,8 +54,8 @@ http://localhost:3000/api/vendedores/julia
 
 9. # ATUALIZAR PRODUTOS..............................
 
-PUT http://localhost:3000/api/produtos/id 
-PUT http://localhost:3000/api/produtos/item/farinha  
+PUT http://localhost:3000/produtos/id 
+PUT http://localhost:3000/produtos/item/farinha  
 
 {
     "preco": "8.20",
@@ -62,7 +64,7 @@ PUT http://localhost:3000/api/produtos/item/farinha
 
 # REALIZAR UMA VENDA................................
 
-POST http://localhost:3000/api/vendas
+POST http://localhost:3000/vendas
 {
     "clienteId": 1,
     "vendedorId": 2,
@@ -72,4 +74,4 @@ POST http://localhost:3000/api/vendas
 
 # CONSULTAR ESTOQUE..................................
 
-GET http://localhost:3000/api/produtos/estoque/arroz
+GET http://localhost:3000/produtos/estoque/arroz
