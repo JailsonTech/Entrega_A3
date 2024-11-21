@@ -69,3 +69,7 @@ POST http://localhost:3000/api/vendas
     "produtoId": 3,
     "quantidade": 2
 }
+
+# CONSULTAR ESTOQUE..................................
+
+GET http://localhost:3000/api/produtos/estoque/arroz

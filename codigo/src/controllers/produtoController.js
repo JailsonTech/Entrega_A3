@@ -211,13 +211,17 @@ exports.obterEstoque = async (req, res) => {
 };
 
 
-// Função para listar todos os produtos e seus estoques
+// controllers/produtoController.js
+
+/// Função para listar todos os produtos e seus estoques
 exports.listarEstoque = async (req, res) => {
     try {
         // Buscar todos os produtos
         const produtos = await Produto.findAll();
 
-        // Retornar uma resposta vazia com código 200 caso não haja produtos
+        console.log(produtos); // Verifique o que é retornado aqui
+
+        // Verificar se não há produtos no banco
         if (produtos.length === 0) {
             return res.status(200).json({ message: 'Nenhum produto no estoque.' });
         }
@@ -232,6 +236,8 @@ exports.listarEstoque = async (req, res) => {
         res.status(500).json({ message: 'Erro ao listar estoques dos produtos', error });
     }
 };
+
+
 
 
 
