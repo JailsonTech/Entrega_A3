@@ -1,19 +1,17 @@
 services:
   api:
     build:
-      context: .  # O contexto é o diretório atual, onde está o Dockerfile
+      context: .  # O contexto é o diretório atual onde está o Dockerfile
     environment:
       - DATABASE_URL=postgresql://usuario:usuario@db:5432/db-postgres
     depends_on:
-      - db  # A API depende do banco de dados
+      - db  # A API depende do banco de dados, mas o wait real é feito no ENTRYPOINT
     ports:
       - "3000:3000"
     volumes:
       - .:/usr/src/app  # Monta o diretório do código da aplicação no contêiner
       - /usr/src/app/node_modules  # Garante que o node_modules será criado dentro do contêiner
     working_dir: /usr/src/app  # Define o diretório de trabalho dentro do contêiner
-    command: ["npm", "start"]
-    entrypoint: ["/usr/src/app/src/wait-for-db.sh", "npm", "start"]  # caminho para o wait-for-db.sh
     networks:
       - app-network
     restart: always
@@ -25,7 +23,7 @@ services:
       POSTGRES_PASSWORD: usuario
       POSTGRES_DB: db-postgres
     volumes:
-      - /init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # caminho do arquivo init_db.sql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql  # Caminho do arquivo de inicialização do banco de dados
     ports:
       - "5432:5432"
     networks:
