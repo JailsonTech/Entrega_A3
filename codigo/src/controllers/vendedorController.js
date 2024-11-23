@@ -43,13 +43,17 @@ exports.criarVendedor = async (req, res) => {
         // Criação do vendedor no banco de dados
         const novoVendedor = await Vendedor.create({ nome, cpf });
 
-        // Retornando o vendedor criado com status 201 (Created)
-        res.status(201).json(novoVendedor);
+        // Retornando a resposta com a mensagem de sucesso
+        res.status(201).json({
+            message: 'Vendedor cadastrado com sucesso!',
+            vendedor: novoVendedor  // Retornando o vendedor recém-criado
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao criar vendedor', error });
     }
 };
+
 
 // GET - Função para obter todos os vendedores
 exports.obterVendedores = async (req, res) => {
@@ -275,9 +279,37 @@ exports.deletarVendedor = async (req, res) => {
 
         await vendedor.destroy();
 
-        res.status(200).json({ message: 'Vendedor deletado com sucesso' });
+        res.status(200).json({ message: 'Vendedor excluído com sucesso' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao deletar vendedor', error });
+    }
+};
+
+// Função para deletar um vendedor pelo CPF
+exports.deletarVendedorPorCpf = async (req, res) => {
+    try {
+        const { cpf } = req.params;  // Obtém o CPF da URL
+
+        // Validação do CPF (formato)
+        if (!validarCpf(cpf)) {
+            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
+        }
+
+        // Buscar o vendedor pelo CPF
+        const vendedor = await Vendedor.findOne({ where: { cpf } });
+
+        if (!vendedor) {
+            return res.status(404).json({ message: 'Vendedor não encontrado com esse CPF.' });
+        }
+
+        // Excluir o vendedor
+        await vendedor.destroy();
+
+        // Retornar a resposta de sucesso
+        res.status(200).json({ message: 'Vendedor excluído com sucesso' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao excluir vendedor', error });
     }
 };
