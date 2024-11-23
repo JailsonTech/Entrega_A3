@@ -3,10 +3,13 @@ const express = require('express');
 const vendedorController = require('../controllers/vendedorController');
 const router = express.Router();
 
-// Definir as rotas para vendedores
-router.post('/', vendedorController.criarVendedor);
-router.get('/', vendedorController.obterVendedores);
-router.put('/:id', vendedorController.atualizarVendedor);
-router.delete('/:id', vendedorController.deletarVendedor);
+// Rotas para vendedores
+router.post('/', vendedorController.criarVendedor);  // Rota para criar vendedor
+router.get('/', vendedorController.obterVendedores);  // Rota para buscar tudo
+router.get('/nome/:nome', vendedorController.obterVendedoresPorNome);  // Rota para busca por nome
+router.get('/cpf/:cpf', vendedorController.obterVendedoresPorCpf);  // Rota para busca por CPF
+router.put('/id/:id', vendedorController.atualizarVendedorPorId);  // Atualizar vendedor por ID
+router.put('/cpf/:cpf', vendedorController.atualizarVendedorPorCpf);  // Atualizar vendedor por CPF
+router.delete('/:id', vendedorController.deletarVendedor);  // Rota para deletar vendedor
 
 module.exports = router;

@@ -23,5 +23,3 @@ EXPOSE 3000
 # Usar o comando pg_isready para aguardar o banco de dados e depois iniciar a aplicação
 ENTRYPOINT ["sh", "-c", "until pg_isready -h db -p 5432 -U usuario; do echo 'Aguardando o banco de dados...'; sleep 2; done; npm start"]
 
-# Comando padrão para rodar a aplicação (npm start)
-CMD ["npm", "start"]
