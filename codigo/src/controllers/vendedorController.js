@@ -145,77 +145,74 @@ exports.atualizarVendedorPorId = async (req, res) => {
         const { id } = req.params;
         const { nome, cpf } = req.body;
 
+        // Verificar se pelo menos um dos campos foi enviado para atualizar
         if (!nome && !cpf) {
             return res.status(400).json({ message: 'Nome ou CPF são obrigatórios para atualização' });
         }
 
+        // Validar nome e CPF
         if (nome && !validarNome(nome)) {
             return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
         }
 
-        if (nome) {
-            const nomeMinimoError = validarNomeMinimo(nome);
-            if (nomeMinimoError) {
-                return res.status(400).json({ message: nomeMinimoError });
-            }
+        const nomeMinimoError = validarNomeMinimo(nome);
+        if (nomeMinimoError) {
+            return res.status(400).json({ message: nomeMinimoError });
         }
 
         if (cpf && !validarCpf(cpf)) {
             return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
         }
 
+        // Buscar o vendedor pelo ID
         const vendedor = await Vendedor.findByPk(id);
-
         if (!vendedor) {
             return res.status(404).json({ message: 'Vendedor não encontrado' });
         }
 
-        // Variável para armazenar a mensagem de sucesso
         let mensagemSucesso = "";
 
-        // Atualizar o CPF, se for fornecido e diferente do atual
+        // Atualizar CPF se necessário
         if (cpf && vendedor.cpf !== cpf) {
             const cpfExistente = await verificarCpfExistente(Vendedor, cpf);
             if (cpfExistente) {
                 return res.status(400).json({ message: 'Já existe um vendedor com esse CPF.' });
             }
-            vendedor.cpf = cpf;  // Atualiza o CPF
-            mensagemSucesso = "CPF atualizado com sucesso!"; // Mensagem de sucesso para o CPF
+            vendedor.cpf = cpf;
+            mensagemSucesso = "CPF alterado com sucesso!";
         }
 
-        // Atualizar o nome, se for fornecido e diferente do atual
+        // Atualizar nome se necessário
         if (nome && vendedor.nome !== nome) {
-            vendedor.nome = nome;  // Atualiza o nome
-            // Se o nome também foi alterado, atualizamos a mensagem de sucesso
+            vendedor.nome = nome;
             if (!mensagemSucesso) {
-                mensagemSucesso = "Nome atualizado com sucesso!"; // Mensagem de sucesso para o nome
+                mensagemSucesso = "Nome alterado com sucesso!";
             }
         }
 
-        // Se nenhum dos campos foi alterado, não há necessidade de salvar
+        // Se nenhum campo foi alterado
         if (!mensagemSucesso) {
             return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
         }
 
-        // Salvando o vendedor atualizado
+        // Salvar as alterações
         await vendedor.save();
 
-        // Retornando a resposta de sucesso com o vendedor atualizado
+        // Retornar a resposta com a mensagem de sucesso e os dados atualizados
         res.status(200).json({
-            message: mensagemSucesso, // Mensagem de sucesso dependendo do campo alterado
+            message: mensagemSucesso,
             vendedor: {
                 id: vendedor.id,
                 nome: vendedor.nome,
                 cpf: vendedor.cpf
-            }  // Retornando o vendedor atualizado
+            }
         });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao atualizar vendedor', error });
     }
 };
-
-
 
 // Função para atualizar um vendedor pelo CPF
 exports.atualizarVendedorPorCpf = async (req, res) => {
@@ -223,44 +220,65 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
         const { cpf } = req.params;
         const { nome, cpf: novoCpf } = req.body;
 
+        // Verificar se pelo menos um dos campos foi enviado para atualizar
         if (!nome && !novoCpf) {
             return res.status(400).json({ message: 'Nome ou CPF são obrigatórios para atualização' });
         }
 
+        // Validar nome e CPF
         if (nome && !validarNome(nome)) {
             return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
         }
 
-        if (nome) {
-            const nomeMinimoError = validarNomeMinimo(nome);
-            if (nomeMinimoError) {
-                return res.status(400).json({ message: nomeMinimoError });
-            }
+        const nomeMinimoError = validarNomeMinimo(nome);
+        if (nomeMinimoError) {
+            return res.status(400).json({ message: nomeMinimoError });
         }
 
         if (novoCpf && !validarCpf(novoCpf)) {
             return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
         }
 
+        // Buscar o vendedor pelo CPF
         const vendedor = await Vendedor.findOne({ where: { cpf } });
-
         if (!vendedor) {
             return res.status(404).json({ message: 'Vendedor não encontrado com esse CPF.' });
         }
 
+        let mensagemSucesso = "";
+
+        // Atualizar CPF se necessário
         if (novoCpf && vendedor.cpf !== novoCpf) {
             const cpfExistente = await verificarCpfExistente(Vendedor, novoCpf);
             if (cpfExistente) {
                 return res.status(400).json({ message: 'Já existe um vendedor com esse CPF.' });
             }
+            vendedor.cpf = novoCpf;
+            mensagemSucesso = "CPF alterado com sucesso!";
         }
 
-        vendedor.nome = nome || vendedor.nome;
-        vendedor.cpf = novoCpf || vendedor.cpf;
+        // Atualizar nome se necessário
+        if (nome && vendedor.nome !== nome) {
+            vendedor.nome = nome;
+            if (!mensagemSucesso) {
+                mensagemSucesso = "Nome alterado com sucesso!";
+            }
+        }
 
+        // Se nenhum campo foi alterado
+        if (!mensagemSucesso) {
+            return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
+        }
+
+        // Salvar as alterações
         await vendedor.save();
 
-        res.status(200).json(vendedor);
+        // Retornar a resposta com a mensagem de sucesso e os dados atualizados
+        res.status(200).json({
+            message: mensagemSucesso,
+            vendedor: vendedor
+        });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao atualizar vendedor', error });

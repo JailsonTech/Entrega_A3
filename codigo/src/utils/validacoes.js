@@ -1,3 +1,5 @@
+//FUNÇÃO VALIDACOES.JS
+
 // Função para validar o CPF (formato 111.222.333-44)
 const validarCpf = (cpf) => {
     const cpfRegex = /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/;
