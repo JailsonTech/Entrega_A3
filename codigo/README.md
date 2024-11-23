@@ -3,11 +3,11 @@ Atividade para avaliação Facs
 
 # Procedimentos
 
-1. Estando na pasta 'codigo' execute 'docker-compose up --build -d'
+1. Estando na pasta 'codigo' execute ' docker-compose up --build -d '
 
 2. instale o postgres no dbeaver ou outra ferramenta de sua preferência para acompanhar o crud. Se quiser
 
-3. execute o crud no insominia, postman ou thunder client (vscode)
+3. Use a extensão do vscode -> 'thunder client' ou postman, insomnia para usar os métodos api
 
 ...............EXEMPLOS COMANDOS SQL...............
 
@@ -16,9 +16,8 @@ http://localhost:3000/clientes
 http://localhost:3000/produtos
 http://localhost:3000/vendedores
 
-# OBTER CLIENTES/PRODUTOS/VENDEDORES PELO NOME OU PELO CPF........................
+# OBTER CLIENTES PELO NOME........................
 http://localhost:3000/clientes/nome/roberto
-http://localhost:3000/clientes/cpf/111.222.333.444-44
 http://localhost:3000/produtos/feijão
 
 6. # OBTER PELO NOME .............................
