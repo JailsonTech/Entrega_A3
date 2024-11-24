@@ -9,6 +9,7 @@ const Clientes = require('./models/clientes');
 const Vendedores = require('./models/vendedores');
 const Produtos = require('./models/produtos');
 
+
 const app = express();
 
 // Middlewares
@@ -61,16 +62,16 @@ const inserirDadosIniciais = async () => {
     const produtosCount = await Produtos.count();
     if (produtosCount === 0) {
         await Produtos.bulkCreate([
-            { item: 'feijão', preco: 6.99, estoque: 100 },
-            { item: 'arroz', preco: 4.00, estoque: 90 },
-            { item: 'macarrão', preco: 4.49, estoque: 75 },
-            { item: 'farinha', preco: 8.99, estoque: 95 },
-            { item: 'sal', preco: 2.79, estoque: 58 },
-            { item: 'açúcar', preco: 5.99, estoque: 12 },
-            { item: 'vinagre', preco: 9.99, estoque: 25 },
-            { item: 'azeite', preco: 28.99, estoque: 48 },
-            { item: 'tapioca', preco: 4.99, estoque: 36 },
-            { item: 'detergente', preco: 2.29, estoque: 66 }
+            { nome: 'feijão', preco: 6.99, estoque: 100 },
+            { nome: 'arroz', preco: 4.00, estoque: 90 },
+            { nome: 'macarrão', preco: 4.49, estoque: 75 },
+            { nome: 'farinha', preco: 8.99, estoque: 95 },
+            { nome: 'sal', preco: 2.79, estoque: 58 },
+            { nome: 'açúcar', preco: 5.99, estoque: 12 },
+            { nome: 'vinagre', preco: 9.99, estoque: 25 },
+            { nome: 'azeite', preco: 28.99, estoque: 48 },
+            { nome: 'tapioca', preco: 4.99, estoque: 36 },
+            { nome: 'detergente', preco: 2.29, estoque: 66 }
         ]);
         console.log('Dados de produtos inseridos.');
     }

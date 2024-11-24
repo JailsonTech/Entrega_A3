@@ -9,7 +9,7 @@ const Produtos = sequelize.define('produtos', {
         primaryKey: true,
         autoIncrement: true,
     },
-    item: {
+    nome: {
         type: DataTypes.STRING,
         allowNull: false,
     },

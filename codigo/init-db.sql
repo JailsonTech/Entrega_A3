@@ -16,7 +16,7 @@ CREATE TABLE vendedores (
 
 CREATE TABLE produtos (
     id SERIAL PRIMARY KEY,
-    item VARCHAR(255),
+    nome VARCHAR(255),
     preco DECIMAL,
     estoque INT
 );
@@ -33,7 +33,7 @@ INSERT INTO vendedores (nome, cpf) VALUES
 ('Alberto', '157.177.158-61'),
 ('Suzana', '272.852.292-26');
 
-INSERT INTO produtos (item, preco, estoque) VALUES
+INSERT INTO produtos (nome, preco, estoque) VALUES
 ('feijão', 6.99, 100),
 ('arroz', 4.00, 90),
 ('macarrão', 4.49, 75),

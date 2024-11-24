@@ -7,19 +7,20 @@ const router = express.Router();
 // Rota para criar um novo produto
 router.post('/', produtoController.criarProduto);
 
-// Rota para obter todos os produtos ou buscar produtos pelo nome
-router.get('/:item?', produtoController.obterProdutos); // O parâmetro 'item' é opcional
+// Rota para obter todos os produtos 
+router.get('/', produtoController.obterProdutos); 
 
-// Rota para atualizar um produto
-router.put('/:id/:item?', produtoController.atualizarProduto);
+// Obter produto por nome
+router.get('/nome/:nome', produtoController.obterProdutoPorNome);
 
-// Rota para deletar um produto
-router.delete('/:id', produtoController.deletarProduto);
+// Rota para obter um produto por ID
+router.get('/id/:id', produtoController.obterProdutoPorId);
 
-// Rota para obter o estoque de um produto específico
-router.get('/estoque/:item', produtoController.obterEstoque);
+// Atualizar produto pelo ID
+router.put('id/:id', produtoController.atualizarProdutoPorId);  
 
-// Rota para listar o estoque de todos os produtos
-router.get('/estoque', produtoController.listarEstoque);
+// Deletar produto pelo ID
+router.delete('id/:id', produtoController.deletarProdutoPorId);  
+
 
 module.exports = router;
