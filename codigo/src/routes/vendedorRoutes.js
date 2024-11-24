@@ -10,7 +10,7 @@ router.get('/nome/:nome', vendedorController.obterVendedoresPorNome);  // Rota p
 router.get('/cpf/:cpf', vendedorController.obterVendedoresPorCpf);  // Rota para busca por CPF
 router.put('/id/:id', vendedorController.atualizarVendedorPorId);  // Atualizar vendedor por ID
 router.put('/cpf/:cpf', vendedorController.atualizarVendedorPorCpf);  // Atualizar vendedor por CPF
-router.delete('/id/:id', vendedorController.deletarVendedor);  // Rota para deletar vendedor
+router.delete('/id/:id', vendedorController.deletarVendedorPorId);  // Rota para deletar vendedor
 router.delete('/cpf/:cpf', vendedorController.deletarVendedorPorCpf);  // Rota para deletar vendedor
 
 module.exports = router;

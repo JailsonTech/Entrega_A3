@@ -286,7 +286,7 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
 };
 
 // Função para deletar um vendedor pelo ID
-exports.deletarVendedor = async (req, res) => {
+exports.deletarVendedorPorId = async (req, res) => {
     try {
         const { id } = req.params;
         const vendedor = await Vendedor.findByPk(id);

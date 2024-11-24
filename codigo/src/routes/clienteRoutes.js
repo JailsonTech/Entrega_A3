@@ -5,18 +5,25 @@ const clienteController = require('../controllers/clienteController');
 // Rota para criar um novo cliente
 router.post('/', clienteController.criarCliente);
 
+// Rota para obter todos os clientes
 router.get('/', clienteController.obterClientes);
 
-// Rota buscar clientes pelo nome
-router.get('/nome/:nome?', clienteController.obterClientes);  // Rota para buscar por nome (opcional)
+// Rota para buscar clientes pelo nome
+router.get('/nome/:nome', clienteController.obterClientesPorNome); 
 
 // Rota para obter clientes pelo CPF
-router.get('/cpf/:cpf', clienteController.obterClientes); // Rota para buscar por CPF
+router.get('/cpf/:cpf', clienteController.obterClientesPorCpf);
 
-// Rota para atualizar um cliente
-router.put('/:id', clienteController.atualizarCliente);
+// Rota para atualizar um cliente por ID
+router.put('/id/:id', clienteController.atualizarClientePorId); 
 
-// Rota para deletar um cliente por ID ou CPF
-router.delete('/:idOrCpf', clienteController.deletarCliente); // O parâmetro foi renomeado para idOrCpf
+// Rota para atualizar um cliente por CPF
+router.put('/cpf/:cpf', clienteController.atualizarClientePorCpf); 
+
+// Rota para deletar um cliente por ID
+router.delete('/id/:id', clienteController.deletarClientePorId); 
+
+// Rota para deletar um cliente por CPF
+router.delete('/cpf/:cpf', clienteController.deletarClientePorCpf); 
 
 module.exports = router;
