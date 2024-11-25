@@ -20,6 +20,12 @@ router.put('/id/:id', clienteController.atualizarClientePorId);
 // Rota para atualizar um cliente por CPF
 router.put('/cpf/:cpf', clienteController.atualizarClientePorCpf); 
 
+// Rota para atualizar um cliente por CPF com Patch
+router.patch('/cpf/:cpf', clienteController.atualizarClientePorCpf); 
+
+// Rota para atualizar um cliente por ID com Patch
+router.patch('/id/:id', clienteController.atualizarClientePorId); 
+
 // Rota para deletar um cliente por ID
 router.delete('/id/:id', clienteController.deletarClientePorId); 
 
