@@ -331,3 +331,19 @@ exports.deletarVendedorPorCpf = async (req, res) => {
         res.status(500).json({ message: 'Erro ao excluir vendedor', error });
     }
 };
+
+// Função para deletar todos os vendedors
+exports.deletarTodosVendedores = async (req, res) => {
+    try {
+        // Deletar os vendedores da tabela 'vendedores'
+        await Vendedor.destroy({
+            where: {}, // Condição vazia para deletar todos os registros
+            force: true, // Forçar a exclusão dos dados
+        });
+
+        res.status(200).json({ message: 'Todos os vendedores foram deletados com sucesso.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao deletar vendedores.', error });
+    }
+};

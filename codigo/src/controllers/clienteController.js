@@ -363,3 +363,19 @@ exports.deletarClientePorCpf = async (req, res) => {
     }
 };
 
+// Função para deletar todos os clientes
+exports.deletarTodosClientes = async (req, res) => {
+    try {
+        // Deletar os clientes da tabela 'clientes'
+        await Cliente.destroy({
+            where: {}, // Condição vazia para deletar todos os registros
+            force: true, // Forçar a exclusão dos dados
+        });
+
+        res.status(200).json({ message: 'Todos os clientes foram deletados com sucesso.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao deletar clientes.', error });
+    }
+};
+

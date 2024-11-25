@@ -9,69 +9,56 @@ Atividade para avaliação Facs
 
 3. Use a extensão do vscode -> 'thunder client' ou postman, insomnia para usar os métodos api
 
-...............EXEMPLOS COMANDOS SQL...............
+.MÉTODOS API
 
-5. # OBTER TUDO - GET .............................
-http://localhost:3000/clientes
-http://localhost:3000/produtos
-http://localhost:3000/vendedores
+1. CLIENTES..........................................................
+  * GET 
+    - (tudo)....... http://localhost:3000/clientes  
+    - (por nome)... http://localhost:3000/clientes/nome/jair  
+    - (por cpf) ... http://localhost:3000/clientes/cpf/111.222.333-44 
 
-# OBTER CLIENTES PELO NOME........................
-http://localhost:3000/clientes/nome/roberto
-http://localhost:3000/produtos/feijão
+  * POST
+    - http://localhost:3000/clientes
+      {
+        "nome":"jailson"
+        "cpf":"111.222.333-44"
+        "endereco":"rua A bairro X"
+      }
 
-6. # OBTER PELO NOME .............................
+  * PUT / PATCH
+    - (por cpf).... http://localhost:3000/clientes/cpf/111.222.333-44
+    - (por Id)..... http://localhost:3000/clientes/id/1
 
-7. # DELETE PELO id ou cpf(clientes)........
-http://localhost:3000/clientes/claudia
-http://localhost:3000/produtos/farinha
-http://localhost:3000/vendedores/julia
+  * DELETE
+    - (por cpf).... http://localhost:3000/clientes/cpf/111.222.333-44
+    - (por Id)..... http://localhost:3000/clientes/id/1
+    - (todos)...... http://localhost:3000/clientes/todos
+    
+      
 
-8. # POST ..............................
+2. VENDEDORES.......................................................
+  * GET 
+    - (tudo)....... http://localhost:3000/vendedores
+    - (por nome)... http://localhost:3000/vendedores/nome/jair  
+    - (por cpf) ... http://localhost:3000/vendedores/cpf/111.222.333-44 
 
-# http://localhost:3000/api/vendedores
+  * POST
+    - http://localhost:3000/vendedores
+      {
+        "nome":"jailson"
+        "cpf":"111.222.333-44"
+      }
 
-{    
-   "nome": "Claudia",
-   "cpf": "232.232.232-23"    
-}
+  * PUT / PATCH
+    - (por cpf).... http://localhost:3000/vendedores/cpf/111.222.333-44
+    - (por Id)..... http://localhost:3000/clientes/id/1
+      {
+        "nome":"jailson"
+        "cpf":"111.222.333-44"
+      }
 
-# http://localhost:3000/api/clientes 
+  * DELETE
+    - (por cpf).... http://localhost:3000/vendedores/cpf/111.222.333-44
+    - (por Id)..... http://localhost:3000/vendedores/id/1
+    - (todos)...... http://localhost:3000/vendedores/todos
 
-{
-   "nome": "Fernando",
-   "cpf": "164.265.333-64",
-   "endereco": "Endereço 8"
-}
-
-# http://localhost:3000/api/produtos 
-
-{
-"nome": "farinha",
-"preco": "20.00",
-"estoque": 60
-}
-
-9. # ATUALIZAR PRODUTOS..............................
-
-PUT http://localhost:3000/produtos/id 
-PUT http://localhost:3000/produtos/item/farinha  
-
-{
-    "preco": "8.20",
-    "estoque": 120
-  }
-
-# REALIZAR UMA VENDA................................
-
-POST http://localhost:3000/vendas
-{
-    "clienteId": 1,
-    "vendedorId": 2,
-    "produtoId": 3,
-    "quantidade": 2
-}
-
-# CONSULTAR ESTOQUE..................................
-
-GET http://localhost:3000/produtos/estoque/arroz
