@@ -7,7 +7,8 @@ const {
     validarEstoque,
     validarCamposObrigatoriosProduto,
     validarIdProduto,
-    verificarProdutoExistente
+    verificarProdutoExistente,
+    formatarPreco 
 } = require('../utils/validacoes'); // Importando as funções de validação
 
 // Função para criar um novo produto
@@ -22,13 +23,14 @@ exports.criarProduto = async (req, res) => {
         }
 
         // Validação do nome do produto (apenas letras e espaços)
-        if (!validarNomeProduto(nome)) {  // Erro aqui, falta o parêntese de fechamento
+        if (!validarNomeProduto(nome)) {
             return res.status(400).json({ message: 'Nome do produto inválido. Apenas letras e espaços são permitidos.' });
         }
 
         // Validação do preço (deve ser maior que 0)
-        if (!validarPreco(preco)) {
-            return res.status(400).json({ message: 'Preço deve ser um número positivo maior que zero.' });
+        const precoValidado = validarPreco(preco);
+        if (!precoValidado.valid) {
+            return res.status(400).json({ message: precoValidado.message });
         }
 
         // Validação de estoque (deve ser um número inteiro não negativo)
@@ -42,8 +44,11 @@ exports.criarProduto = async (req, res) => {
             return res.status(400).json({ message: 'Produto já cadastrado com esse nome.' });
         }
 
+        // Formatar o preço para garantir 2 casas decimais
+        const precoFormatado = formatarPreco(preco);
+
         // Criando o novo produto
-        const novoProduto = await Produtos.create({ nome, preco, estoque });
+        const novoProduto = await Produtos.create({ nome, preco: precoFormatado, estoque });
 
         res.status(201).json({
             message: 'Produto criado com sucesso!',
@@ -129,7 +134,7 @@ exports.obterProdutoPorId = async (req, res) => {
     }
 };
 
-// Função para atualizar um produto
+// Função para atualizar um produto pelo id
 exports.atualizarProdutoPorId = async (req, res) => {
     try {
         const { id } = req.params;
@@ -140,34 +145,51 @@ exports.atualizarProdutoPorId = async (req, res) => {
             return res.status(400).json({ message: 'Pelo menos um campo deve ser informado: nome, preco ou estoque.' });
         }
 
-        // Validação de preço e estoque
-        if (preco && !validarPreco(preco)) {
-            return res.status(400).json({ message: 'Preço deve ser um número positivo maior que zero.' });
-        }
-
-        if (estoque && !validarEstoque(estoque)) {
-            return res.status(400).json({ message: 'Estoque deve ser um número inteiro não negativo.' });
-        }
-
-        // Validação do nome do produto (se fornecido)
-        if (nome && !validarNomeProduto(nome)) {
-            return res.status(400).json({ message: 'Nome do produto inválido. Apenas letras e espaços são permitidos.' });
-        }
-
+        // Buscar o produto pelo ID
         const produto = await Produtos.findByPk(id);
         if (!produto) {
             return res.status(404).json({ message: 'Produto não encontrado.' });
         }
 
-        // Atualizando os campos fornecidos
-        if (nome) produto.nome = nome;
-        if (preco) produto.preco = preco;
-        if (estoque) produto.estoque = estoque;
+        // Variável para armazenar a mensagem de sucesso
+        let mensagem = '';
+        let nenhumaAlteracao = true; // Flag para verificar se houve alteração
 
+        // Comparar e verificar alterações no nome
+        if (nome && nome !== produto.nome) {
+            produto.nome = nome;
+            mensagem += 'Nome do produto atualizado com sucesso. ';
+            nenhumaAlteracao = false;
+        }
+
+        // Comparar e verificar alterações no preço
+        if (preco !== undefined && preco !== produto.preco) {
+            produto.preco = formatarPreco(preco); // Formatar preço antes de salvar
+            mensagem += 'Preço do produto atualizado com sucesso. ';
+            nenhumaAlteracao = false;
+        }
+
+        // Comparar e verificar alterações no estoque
+        if (estoque !== undefined && estoque !== produto.estoque) {
+            produto.estoque = estoque;
+            mensagem += 'Estoque do produto atualizado com sucesso. ';
+            nenhumaAlteracao = false;
+        }
+
+        // Se não houve alteração, retornar mensagem de nenhuma alteração
+        if (nenhumaAlteracao) {
+            return res.status(200).json({
+                message: 'Nenhuma alteração realizada.',
+                produto,
+            });
+        }
+
+        // Salvar as alterações
         await produto.save();
 
+        // Retornando a mensagem caso haja alteração
         res.status(200).json({
-            message: 'Produto atualizado com sucesso.',
+            message: mensagem.trim(), // Remove espaços extras no final da mensagem
             produto,
         });
     } catch (error) {
@@ -175,6 +197,71 @@ exports.atualizarProdutoPorId = async (req, res) => {
         res.status(500).json({ message: 'Erro ao atualizar produto.', error });
     }
 };
+
+// Função para atualizar um produto pelo nome
+exports.atualizarProdutoPorNome = async (req, res) => {
+    try {
+        const { nome } = req.params;
+        const { nome: novoNome, preco, estoque } = req.body;
+
+        // Verificar se pelo menos um campo foi informado
+        if (!novoNome && preco === undefined && estoque === undefined) {
+            return res.status(400).json({ message: 'Pelo menos um campo deve ser informado: nome, preco ou estoque.' });
+        }
+
+        // Buscando o produto pelo nome
+        const produto = await Produtos.findOne({ where: { nome } });
+        if (!produto) {
+            return res.status(404).json({ message: 'Produto não encontrado.' });
+        }
+
+        // Variável para armazenar a mensagem de sucesso
+        let mensagem = '';
+        let nenhumaAlteracao = true; // Flag para verificar se houve alteração
+
+        // Comparar e verificar alterações no nome
+        if (novoNome && novoNome !== produto.nome) {
+            produto.nome = novoNome;
+            mensagem += 'Nome do produto atualizado com sucesso. ';
+            nenhumaAlteracao = false;
+        }
+
+        // Comparar e verificar alterações no preço
+        if (preco !== undefined && preco !== produto.preco) {
+            produto.preco = formatarPreco(preco); // Formatar preço antes de salvar
+            mensagem += 'Preço do produto atualizado com sucesso. ';
+            nenhumaAlteracao = false;
+        }
+
+        // Comparar e verificar alterações no estoque
+        if (estoque !== undefined && estoque !== produto.estoque) {
+            produto.estoque = estoque;
+            mensagem += 'Estoque do produto atualizado com sucesso. ';
+            nenhumaAlteracao = false;
+        }
+
+        // Se não houve alteração, retornar mensagem de nenhuma alteração
+        if (nenhumaAlteracao) {
+            return res.status(200).json({
+                message: 'Nenhuma alteração realizada.',
+                produto,
+            });
+        }
+
+        // Salvar as alterações
+        await produto.save();
+
+        // Retornando a mensagem caso haja alteração
+        res.status(200).json({
+            message: mensagem.trim(), // Remove espaços extras no final da mensagem
+            produto,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao atualizar produto.', error });
+    }
+};
+
 
 // Função para deletar um produto
 exports.deletarProdutoPorId = async (req, res) => {
@@ -194,3 +281,44 @@ exports.deletarProdutoPorId = async (req, res) => {
         res.status(500).json({ message: 'Erro ao deletar produto.', error });
     }
 };
+
+// Função para deletar um produto pelo nome
+exports.deletarProdutoPorNome = async (req, res) => {
+    try {
+        const { nome } = req.params;  // Pegando o nome do produto via parâmetros da URL
+
+        // Buscando o produto pelo nome
+        const produto = await Produtos.findOne({ where: { nome } });
+
+        if (!produto) {
+            return res.status(404).json({ message: 'Produto não encontrado.' });
+        }
+
+        // Deletando o produto
+        await produto.destroy();
+
+        res.status(200).json({ message: 'Produto deletado com sucesso.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao deletar produto.', error });
+    }
+};
+
+exports.deletarTodosProdutos = async (req, res) => {
+    try {
+        // Deletar os produtos da tabela 'produtos'
+        await Produtos.destroy({
+            where: {}, // Condição vazia para deletar todos os registros
+            force: true, // Forçar a exclusão dos dados
+        });
+
+        res.status(200).json({ message: 'Todos os produtos foram deletados com sucesso.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao deletar produtos.', error });
+    }
+};
+
+
+
+

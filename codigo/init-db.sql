@@ -1,5 +1,3 @@
--- init-db.sql
-
 -- Criar tabelas
 CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
@@ -20,6 +18,55 @@ CREATE TABLE produtos (
     preco DECIMAL,
     estoque INT
 );
+
+-- Criar funções de formatação de nome para clientes, vendedores e produtos
+
+-- Função para formatar nome do cliente
+CREATE OR REPLACE FUNCTION formatar_nome_cliente()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.nome := TRIM(REGEXP_REPLACE(NEW.nome, '\s+', ' ', 'g'));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Função para formatar nome do vendedor
+CREATE OR REPLACE FUNCTION formatar_nome_vendedor()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.nome := TRIM(REGEXP_REPLACE(NEW.nome, '\s+', ' ', 'g'));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Função para formatar nome do produto
+CREATE OR REPLACE FUNCTION formatar_nome_produto()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.nome := TRIM(REGEXP_REPLACE(NEW.nome, '\s+', ' ', 'g'));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Criar triggers para chamar as funções
+
+-- Trigger para clientes
+CREATE TRIGGER trigger_formatar_nome_cliente
+BEFORE INSERT OR UPDATE ON clientes
+FOR EACH ROW
+EXECUTE FUNCTION formatar_nome_cliente();
+
+-- Trigger para vendedores
+CREATE TRIGGER trigger_formatar_nome_vendedor
+BEFORE INSERT OR UPDATE ON vendedores
+FOR EACH ROW
+EXECUTE FUNCTION formatar_nome_vendedor();
+
+-- Trigger para produtos
+CREATE TRIGGER trigger_formatar_nome_produto
+BEFORE INSERT OR UPDATE ON produtos
+FOR EACH ROW
+EXECUTE FUNCTION formatar_nome_produto();
 
 -- Inserir dados iniciais
 INSERT INTO clientes (nome, cpf, endereco) VALUES
