@@ -30,9 +30,9 @@ router.patch('/id/:id', clienteController.atualizarClientePorId);
 router.delete('/id/:id', clienteController.deletarClientePorId); 
 
 // Rota para deletar um cliente por CPF
-router.delete('/cpf/:cpf', clienteController.deletarClientePorCpf);
+router.delete('/cpf/:cpf', clienteController.deletarClientePorCpf); 
 
-// Rota para deletar todos os clientes
-router.delete('/todos', clienteController.deletarTodosClientes); 
+// Deletar todos os clientes
+router.delete('/todos', clienteController.deletarTodosClientes);
 
 module.exports = router;
