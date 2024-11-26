@@ -4,6 +4,7 @@ const validarCpf = (cpf) => {
     return cpfRegex.test(cpf);
 };
 
+
 // Função para validar o Nome (apenas letras e espaços)
 const validarNome = (nome) => {
     // A regex já permite letras minúsculas, maiúsculas, acentuadas e espaços
@@ -91,16 +92,16 @@ const validarEstoque = (estoque) => {
     
     // Garantir que o estoque seja um número real (não uma string)
     if (typeof estoque !== 'number') {
-        return { valid: false, message: `O valor '${estoque}' -> deve ser sem aspas` };
+        return { valid: false, message: `O valor '${estoque}' deve ser sem aspas` };
     }
 
     // O estoque deve ser um número inteiro não negativo
     if (!Number.isInteger(estoque)) {
-        return { valid: false, message: `O valor '${estoque}' não é um número inteiro. O estoque deve ser um número inteiro não negativo.` };
+        return { valid: false, message: `O valor '${estoque}' deve ser inteiro, não negativo.` };
     }
 
     if (estoque < 0) {
-        return { valid: false, message: `O valor '${estoque}' é inválido. O estoque não pode ser negativo.` };
+        return { valid: false, message: `O valor '${estoque}' inválido. Não pode ser negativo.` };
     }
 
     // Se tudo estiver correto, retornamos como válido
