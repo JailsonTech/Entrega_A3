@@ -16,12 +16,7 @@ exports.criarProduto = async (req, res) => {
     try {
         const { nome, preco, estoque } = req.body;
 
-        // Verifica se 'nome' é uma string
-        if (typeof nome !== 'string') {
-            return res.status(400).json({ message: `'${nome}' deve ser uma string válida.` });
-        }
-
-        // Validação de campos obrigatórios
+        // Validação de campos obrigatórios (nome, preco e estoque devem ser informados)
         const camposInvalidos = validarCamposObrigatoriosProduto(nome, preco, estoque);
         if (camposInvalidos) {
             return res.status(400).json({ message: camposInvalidos });
@@ -84,11 +79,6 @@ exports.atualizarProdutoPorId = async (req, res) => {
         const erroValidacaoId = validarIdProduto(id);
         if (erroValidacaoId) {
             return res.status(400).json({ message: erroValidacaoId });
-        }
-
-        // Verificar se pelo menos um campo foi informado
-        if (!nome && preco === undefined && estoque === undefined) {
-            return res.status(400).json({ message: 'Pelo menos um campo deve ser informado: nome, preco ou estoque.' });
         }
 
         // Buscar o produto pelo ID
@@ -224,21 +214,21 @@ exports.atualizarProdutoPorNome = async (req, res) => {
         // Se não houve alteração, retornar mensagem de nenhuma alteração
         if (nenhumaAlteracao) {
             return res.status(200).json({
-                message: 'Nenhuma atualização foi feita.',
+                message: 'Nenhuma atualização foi feita. Produto já está com os dados informados.',
                 produto,
             });
         }
 
-        // Atualizar as alterações no banco de dados diretamente
+        // Atualizar as alterações no banco de dados diretamente com o Sequelize
         await produto.update({
             nome: produto.nome,
             preco: produto.preco,
-            estoque: produto.estoque
+            estoque: produto.estoque,
         });
 
         res.status(200).json({
-            message: mensagem.trim(),
-            produto,
+            message: mensagem.trim(),  // A mensagem é retornada sem espaços extras
+            produto, // Retorna o produto atualizado
         });
     } catch (error) {
         console.error(error);

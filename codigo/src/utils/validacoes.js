@@ -107,13 +107,20 @@ const validarEstoque = (estoque) => {
     return { valid: true };
 };
 
-// Função para validar se pelo menos um dos campos (nome, preco ou estoque) foi informado
+// Função para validar se todos os campos obrigatórios (nome, preco e estoque) foram informados
 const validarCamposObrigatoriosProduto = (nome, preco, estoque) => {
-    if (!nome && preco === undefined && estoque === undefined) {
-        return 'Pelo menos um campo deve ser informado: nome, preco ou estoque.';
+    if (!nome || nome.trim() === '') {
+        return 'O campo "nome" é obrigatório.';
+    }
+    if (preco === undefined || preco === null) {
+        return 'O campo "preco" é obrigatório.';
+    }
+    if (estoque === undefined || estoque === null) {
+        return 'O campo "estoque" é obrigatório.';
     }
     return null;
 };
+
 
 // Função para verificar se o nome do produto já existe no banco de dados
 const verificarProdutoExistente = async (Produto, nome) => {
