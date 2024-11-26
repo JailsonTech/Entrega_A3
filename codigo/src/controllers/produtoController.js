@@ -12,7 +12,6 @@ const {
 } = require('../utils/validacoes'); // Importando as funções de validação
 
 // Função para criar um novo produto
-// Função para criar um novo produto
 exports.criarProduto = async (req, res) => {
     try {
         const { nome, preco, estoque } = req.body;
@@ -55,7 +54,7 @@ exports.criarProduto = async (req, res) => {
         // Criar o produto diretamente no banco de dados
         const novoProduto = await Produtos.create({
             nome,
-            preco: precoFloat,
+            preco: precoFloat, // Armazenando o preço como número
             estoque
         });
 
@@ -69,6 +68,7 @@ exports.criarProduto = async (req, res) => {
     }
 };
 
+// Função para atualizar produto por ID
 exports.atualizarProdutoPorId = async (req, res) => {
     try {
         const { id } = req.params;
@@ -118,7 +118,7 @@ exports.atualizarProdutoPorId = async (req, res) => {
             if (!validacaoPreco.valid) {
                 return res.status(400).json({ message: validacaoPreco.message });
             }
-            produto.preco = validacaoPreco.precoNumerico;
+            produto.preco = validacaoPreco.precoNumerico; // Atualizando o preço
             mensagem += 'Preço do produto atualizado com sucesso. ';
             nenhumaAlteracao = false;
         }
@@ -159,8 +159,7 @@ exports.atualizarProdutoPorId = async (req, res) => {
     }
 };
 
-
-
+// Função para atualizar produto por nome
 exports.atualizarProdutoPorNome = async (req, res) => {
     try {
         const { nome } = req.params; // Nome do produto para localizar
@@ -206,7 +205,7 @@ exports.atualizarProdutoPorNome = async (req, res) => {
             if (!validacaoPreco.valid) {
                 return res.status(400).json({ message: validacaoPreco.message });
             }
-            produto.preco = validacaoPreco.precoNumerico;
+            produto.preco = validacaoPreco.precoNumerico; // Atualiza o preço
             mensagem += 'Preço do produto atualizado com sucesso. ';
             nenhumaAlteracao = false;
         }
