@@ -333,11 +333,11 @@ exports.obterProdutoPorNome = async (req, res) => {
             return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
         }
 
-        // Busca insensível a maiúsculas e minúsculas
+        // Busca exata insensível a maiúsculas e minúsculas
         const produtos = await Produtos.findAll({
             where: {
                 nome: {
-                    [Op.iLike]: `%${nome}%`,
+                    [Op.iLike]: nome,  // Busca exata e insensível a maiúsculas/minúsculas
                 },
             },
         });
