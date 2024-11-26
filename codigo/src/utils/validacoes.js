@@ -40,50 +40,83 @@ const validarNomeProduto = (nome) => {
     return nomeProdutoRegex.test(nome);
 };
 
-/// Função para validar o preço do produto (deve ser um número positivo maior que zero)
+// Função para validar o preço
 const validarPreco = (preco) => {
-    // Se o preço for uma string, tentamos substituir a vírgula por ponto
+    // Substituir a vírgula por ponto e garantir que seja um número válido
     let precoComPonto = preco.toString().replace(",", ".");
 
-    // Se o valor inicial tinha vírgula, vamos retornar uma mensagem informando isso
-    if (preco !== precoComPonto) {
-        return { valid: false, message: "O preço deve ser no formato correto: use ponto (.) em vez de vírgula. Exemplo: 4.49" };
-    }
-
-    // Converte a string para número
+    // Convertendo para float e verificando se o valor é um número válido
     const precoNumerico = parseFloat(precoComPonto);
 
-    // O preço deve ser um número maior que zero
+    // Se o preço não for um número válido ou for menor ou igual a zero, retorna erro
     if (isNaN(precoNumerico) || precoNumerico <= 0) {
         return { valid: false, message: "Preço deve ser um número positivo maior que zero." };
     }
 
-    // Se tudo estiver correto, retornamos como válido
-    return { valid: true };
+    // Retorna o preço numérico (float) já convertido
+    return { valid: true, precoNumerico };
 };
 
+
+// Exemplo de como salvar no DB
+const salvarProdutoNoDb = async (Produto, nome, preco, estoque) => {
+    try {
+        // Validar o preço
+        const validacaoPreco = validarPreco(preco);
+        if (!validacaoPreco.valid) {
+            throw new Error(validacaoPreco.message);
+        }
+
+        // Se o preço for válido, utilizamos o precoNumerico (float) para salvar no banco
+        const precoFloat = validacaoPreco.precoNumerico;
+
+        // Criação do produto no banco de dados com preço como float
+        const novoProduto = await Produto.create({
+            nome,
+            preco: precoFloat, // Aqui o preço é armazenado como número
+            estoque
+        });
+
+        return novoProduto;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Erro ao salvar o produto.");
+    }
+};
 
 // Função para validar o estoque do produto (deve ser um número inteiro não negativo)
 const validarEstoque = (estoque) => {
     // Garantir que o estoque seja interpretado como número inteiro, mesmo se for passado como string
-    const estoqueNumerico = parseInt(estoque, 10);
+    const estoqueNumerico = parseFloat(estoque); // Usar parseFloat para verificar números decimais
+
+    // Verificar se o estoque é um número válido
+    if (isNaN(estoqueNumerico)) {
+        return { valid: false, message: `O valor '${estoque}' não é um número válido.` };
+    }
 
     // O estoque deve ser um número inteiro não negativo
-    if (!Number.isInteger(estoqueNumerico) || estoqueNumerico < 0) {
-        return { valid: false, message: "O estoque deve ser um número inteiro não negativo." };
+    if (!Number.isInteger(estoqueNumerico)) {
+        return { valid: false, message: `O valor '${estoque}' não é um número inteiro. O estoque deve ser um número inteiro não negativo.` };
+    }
+
+    if (estoqueNumerico < 0) {
+        return { valid: false, message: `O valor '${estoque}' é inválido. O estoque não pode ser negativo.` };
     }
 
     // Se tudo estiver correto, retornamos como válido
     return { valid: true };
 };
 
-// Função para validar campos obrigatórios (nome, preço e estoque)
+
+// Função para validar se pelo menos um dos campos (nome, preco ou estoque) foi informado
 const validarCamposObrigatoriosProduto = (nome, preco, estoque) => {
-    if (!nome || preco === undefined || estoque === undefined) {
-        return 'Nome, Preço e Estoque são obrigatórios';
+    if (!nome && preco === undefined && estoque === undefined) {
+        return 'Pelo menos um campo deve ser informado: nome, preco ou estoque.';
     }
     return null;
 };
+
+
 
 // Função para verificar se o nome do produto já existe no banco de dados
 const verificarProdutoExistente = async (Produto, nome) => {
@@ -91,17 +124,15 @@ const verificarProdutoExistente = async (Produto, nome) => {
     return produtoExistente;
 };
 
-// Função para formatar o preço para 2 casas decimais
-const formatarPreco = (preco) => {
-    // Converte o preço para número com 2 casas decimais
-    const precoNumerico = parseFloat(preco);
-    if (isNaN(precoNumerico)) {
-        throw new Error("Preço inválido");
+// Função de validação de ID
+const validarIdProduto = (id) => {
+    // Garantir que o id seja um número inteiro positivo
+    const idNumerico = parseInt(id, 10);  // Convertendo para número inteiro
+    if (!Number.isInteger(idNumerico) || idNumerico <= 0) {
+        return 'ID inválido. O ID deve ser um número inteiro positivo.';
     }
-    return precoNumerico.toFixed(2); // Formata para 2 casas decimais
+    return null;
 };
-
-
 
 module.exports = {
     validarCpf,
@@ -114,5 +145,6 @@ module.exports = {
     validarEstoque,
     validarCamposObrigatoriosProduto,
     verificarProdutoExistente,
-    formatarPreco 
+    salvarProdutoNoDb,
+    validarIdProduto 
 };
