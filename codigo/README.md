@@ -85,6 +85,6 @@ Atividade para avaliação Facs
 
   * DELETE
     - (por nome).... http://localhost:3000/produtos/nome/farinha
-    - (por Id)..... http://localhost:3000/produtos/id/1
-    - (todos)...... http://localhost:3000/produtos/todos
+    - (por Id)...... http://localhost:3000/produtos/id/1
+    - (todos)....... http://localhost:3000/produtos/todos
 
