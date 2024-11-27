@@ -8,7 +8,7 @@ const sequelize = require('./utils/database');
 const Clientes = require('./models/clientes');
 const Vendedores = require('./models/vendedores');
 const Produtos = require('./models/produtos');
-
+const Venda = require('./models/venda');  // Importando o modelo de Venda
 
 const app = express();
 
@@ -82,6 +82,17 @@ const inserirDadosIniciais = async () => {
             { nome: 'detergente', preco: 2.29, estoque: 66 }
         ]);
         console.log('Dados de produtos inseridos.');
+    }
+
+    // Verificar se há vendas
+    const vendasCount = await Venda.count();
+    if (vendasCount === 0) {
+        await Venda.bulkCreate([
+            { clienteId: 1, vendedorId: 1, produtoId: 1, quantidade: 10, total: 69.90, data_venda: new Date('2024-11-01') },
+            { clienteId: 2, vendedorId: 2, produtoId: 2, quantidade: 5, total: 20.00, data_venda: new Date('2024-11-02') },
+            { clienteId: 3, vendedorId: 1, produtoId: 3, quantidade: 8, total: 35.92, data_venda: new Date('2024-11-03') }
+        ]);
+        console.log('Dados de vendas inseridos.');
     }
 };
 

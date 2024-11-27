@@ -166,8 +166,6 @@ const validarCamposObrigatoriosProdutoPut = (nome, preco, estoque) => {
     return null;
 };
 
-
-
 // Função para verificar se o nome do produto já existe no banco de dados
 const verificarProdutoExistente = async (Produto, nome) => {
     const produtoExistente = await Produto.findOne({ where: { nome } });
@@ -175,7 +173,7 @@ const verificarProdutoExistente = async (Produto, nome) => {
 };
 
 // Função de validação de ID
-const validarIdProduto = (id) => {
+const validarId = (id) => {
     // Garantir que o id seja um número inteiro positivo
     const idNumerico = parseInt(id, 10);  // Convertendo para número inteiro
     if (!Number.isInteger(idNumerico) || idNumerico <= 0) {
@@ -198,5 +196,5 @@ module.exports = {
     validarCamposObrigatoriosProdutoPut,
     verificarProdutoExistente,
     salvarProdutoNoDb,
-    validarIdProduto 
+    validarId
 };

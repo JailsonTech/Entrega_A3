@@ -1,3 +1,5 @@
+--INIB-DB.SQL....
+
 -- Criar tabelas
 CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
@@ -92,3 +94,24 @@ INSERT INTO produtos (nome, preco, estoque) VALUES
 ('azeite', 28.99, 48),
 ('tapioca', 4.99, 36),
 ('detergente', 2.29, 66);
+
+-- Criar tabela vendas
+CREATE TABLE vendas (
+    id SERIAL PRIMARY KEY,
+    clienteId INT NOT NULL,
+    vendedorId INT NOT NULL,
+    produtoId INT NOT NULL,
+    quantidade INT NOT NULL CHECK (quantidade > 0),
+    total DECIMAL(10, 2) NOT NULL CHECK (total > 0),
+    data_venda TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (clienteId) REFERENCES clientes(id) ON DELETE CASCADE,
+    FOREIGN KEY (vendedorId) REFERENCES vendedores(id) ON DELETE CASCADE,
+    FOREIGN KEY (produtoId) REFERENCES produtos(id) ON DELETE CASCADE
+);
+
+-- Inserir dados iniciais de vendas
+INSERT INTO vendas (clienteId, vendedorId, produtoId, quantidade, total, data_venda) VALUES
+(1, 1, 1, 10, 69.90, '2024-11-01'),
+(2, 2, 2, 5, 20.00, '2024-11-02'),
+(3, 1, 3, 8, 35.92, '2024-11-03');
+

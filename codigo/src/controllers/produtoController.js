@@ -365,7 +365,7 @@ exports.obterProdutoPorId = async (req, res) => {
         const { id } = req.params;
 
         // Validação do ID usando a função de validação
-        const erroValidacaoId = validarIdProduto(id);
+        const erroValidacaoId = validarId(id);
         if (erroValidacaoId) {
             return res.status(400).json({ message: erroValidacaoId });
         }

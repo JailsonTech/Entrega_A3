@@ -14,6 +14,9 @@ router.get('/nome/:nome', clienteController.obterClientesPorNome);
 // Rota para obter clientes pelo CPF
 router.get('/cpf/:cpf', clienteController.obterClientesPorCpf);
 
+// Rota para obter clientes pelo Id
+router.get('/id/:id', clienteController.obterclientePorId);
+
 // Rota para atualizar um cliente por ID
 router.put('/id/:id', clienteController.atualizarClientePorId); 
 
