@@ -3,12 +3,13 @@ const cors = require('cors');
 const clienteRoutes = require('./routes/clienteRoutes');
 const vendedorRoutes = require('./routes/vendedorRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
-const vendaRoutes = require('./routes/vendaRoutes'); // Importando as rotas de vendas
+const vendaRoutes = require('./routes/vendaRoutes');
+const relatorioRoutes = require('./routes/relatorioRoutes'); 
 const sequelize = require('./utils/database');
 const Clientes = require('./models/clientes');
 const Vendedores = require('./models/vendedores');
 const Produtos = require('./models/produtos');
-
+const Relatorios = require('./models/relatorios');  
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/clientes', clienteRoutes);    // Rota para clientes
 app.use('/vendedores', vendedorRoutes); // Rota para vendedores
 app.use('/produtos', produtoRoutes);   // Rota para produtos
 app.use('/vendas', vendaRoutes);       // Rota para vendas
+app.use('/relatorios', relatorioRoutes); // Rota para relatórios
 
 // Função para verificar a conexão com o banco
 const checkDbConnection = async () => {
@@ -68,7 +70,7 @@ const inserirDadosIniciais = async () => {
             { nome: 'farinha', preco: 8.99, estoque: 95 },
             { nome: 'sal', preco: 2.79, estoque: 58 },
             { nome: 'açúcar', preco: 5.99, estoque: 12 },
-            { nome: 'vinagre', preco: 9.99, estoque: 25 },
+            { nome: 'vinagre', preco: 9.99, estoque: 24 },
             { nome: 'azeite', preco: 28.99, estoque: 48 },
             { nome: 'tapioca', preco: 4.99, estoque: 36 },
             { nome: 'detergente', preco: 2.29, estoque: 66 }
