@@ -5,7 +5,7 @@ const router = express.Router();
 const pedidoCompraController = require('../controllers/pedidoCompraController');
 
 // Rota para receber um pedido de compra
-router.post('/receber', pedidoCompraController.receberPedidoCompra);
+router.post('/comprar', pedidoCompraController.receberPedidoCompra);
 
 // Rota para cancelar um pedido de compra
 router.post('/cancelar', pedidoCompraController.cancelarPedidoCompra);

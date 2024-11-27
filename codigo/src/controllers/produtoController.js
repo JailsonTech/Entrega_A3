@@ -6,7 +6,7 @@ const {
     validarPreco,
     validarEstoque,
     validarCamposObrigatoriosProduto,
-    validarIdProduto,
+    validarId,
     validarCamposObrigatoriosProdutoPut,
     verificarProdutoExistente,
 

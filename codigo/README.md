@@ -91,6 +91,6 @@ Atividade para avaliação Facs
     - (todos)....... http://localhost:3000/produtos/todos
 
 4. RECEBER/CANCELAR PEDIDO COMPRA..................................
-  * Receber pedido: POST http://localhost:3000/pedidos/receber
+  * Receber pedido: POST http://localhost:3000/pedidos/comprar
   * Cancelar pedido: POST http://localhost:3000/pedidos/cancelar
 

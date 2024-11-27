@@ -196,5 +196,5 @@ module.exports = {
     validarCamposObrigatoriosProdutoPut,
     verificarProdutoExistente,
     salvarProdutoNoDb,
-    validarId
+    validarId,
 };
