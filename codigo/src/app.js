@@ -4,11 +4,12 @@ const clienteRoutes = require('./routes/clienteRoutes');
 const vendedorRoutes = require('./routes/vendedorRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
 const vendaRoutes = require('./routes/vendaRoutes'); // Importando as rotas de vendas
+const pedidoCompraRoutes = require('./routes/pedidoCompraRoutes'); // Importando as rotas de pedidos de compra
 const sequelize = require('./utils/database');
 const Clientes = require('./models/clientes');
 const Vendedores = require('./models/vendedores');
 const Produtos = require('./models/produtos');
-const Venda = require('./models/venda');  // Importando o modelo de Venda
+const Vendas = require('./models/vendas');  // Importando o modelo de Venda
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/clientes', clienteRoutes);    // Rota para clientes
 app.use('/vendedores', vendedorRoutes); // Rota para vendedores
 app.use('/produtos', produtoRoutes);   // Rota para produtos
 app.use('/vendas', vendaRoutes);       // Rota para vendas
+app.use('/pedidos', pedidoCompraRoutes); // Rota para pedidos de compra
 
 // Função para verificar a conexão com o banco
 const checkDbConnection = async () => {
@@ -85,12 +87,12 @@ const inserirDadosIniciais = async () => {
     }
 
     // Verificar se há vendas
-    const vendasCount = await Venda.count();
+    const vendasCount = await Vendas.count();
     if (vendasCount === 0) {
-        await Venda.bulkCreate([
-            { clienteId: 1, vendedorId: 1, produtoId: 1, quantidade: 10, total: 69.90, data_venda: new Date('2024-11-01') },
-            { clienteId: 2, vendedorId: 2, produtoId: 2, quantidade: 5, total: 20.00, data_venda: new Date('2024-11-02') },
-            { clienteId: 3, vendedorId: 1, produtoId: 3, quantidade: 8, total: 35.92, data_venda: new Date('2024-11-03') }
+        await Vendas.bulkCreate([
+            { clienteId: 1, vendedorId: 1, produtoId: 1, quantidade: 10, total: 69.90, data_venda: new Date('01-11-2024') },
+            { clienteId: 2, vendedorId: 2, produtoId: 2, quantidade: 5, total: 20.00, data_venda: new Date('02-12-2024') },
+            { clienteId: 3, vendedorId: 1, produtoId: 3, quantidade: 8, total: 35.92, data_venda: new Date('03-11-2024') }
         ]);
         console.log('Dados de vendas inseridos.');
     }
@@ -103,7 +105,7 @@ const syncDbAndStartServer = async () => {
         await checkDbConnection();
 
         // Sincroniza o banco de dados (não recria tabelas, caso já existam)
-        await sequelize.sync({ force: false }); 
+        await sequelize.sync({ force: false });
 
         // Inserir os dados iniciais
         await inserirDadosIniciais();

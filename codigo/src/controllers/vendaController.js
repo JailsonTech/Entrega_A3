@@ -1,5 +1,5 @@
 // src/controllers/vendaController.js
-const Venda = require('../models/venda');
+const Vendas = require('../models/vendas');
 const Cliente = require('../models/clientes');
 const Vendedor = require('../models/vendedores');
 const Produto = require('../models/produtos');
@@ -36,7 +36,7 @@ const criarVenda = async (req, res) => {
         const total = produto.preco * quantidade;
 
         // Criar a venda com nomes ao invés de IDs
-        const venda = await Venda.create({
+        const venda = await Vendas.create({
             cliente_nome: cliente.nome,     // Usar o nome do cliente
             vendedor_nome: vendedor.nome,   // Usar o nome do vendedor
             produto_item: produto.item,     // Usar o nome do produto
