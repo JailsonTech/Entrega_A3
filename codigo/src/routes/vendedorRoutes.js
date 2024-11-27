@@ -15,6 +15,9 @@ router.get('/nome/:nome', vendedorController.obterVendedoresPorNome);
 // Rota para busca por CPF
 router.get('/cpf/:cpf', vendedorController.obterVendedoresPorCpf);
 
+// Rota para busca por ID
+router.get('/id/:id', vendedorController.obterVendedorPorId);
+
 // Atualizar vendedor por ID com PUT
 router.put('/id/:id', vendedorController.atualizarVendedorPorId); 
 
@@ -37,4 +40,5 @@ router.delete('/cpf/:cpf', vendedorController.deletarVendedorPorCpf);
 router.delete('/todos', vendedorController.deletarTodosVendedores)
 
 module.exports = router;
+
 

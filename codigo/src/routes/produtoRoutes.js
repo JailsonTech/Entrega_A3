@@ -37,5 +37,4 @@ router.delete('/nome/:nome', produtoController.deletarProdutoPorNome);
 // Deletar todos os produtos
 router.delete('/todos', produtoController.deletarTodosProdutos);
 
-
 module.exports = router;

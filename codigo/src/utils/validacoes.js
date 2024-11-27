@@ -4,6 +4,7 @@ const validarCpf = (cpf) => {
     return cpfRegex.test(cpf);
 };
 
+
 // Função para validar o Nome (apenas letras e espaços)
 const validarNome = (nome) => {
     // A regex já permite letras minúsculas, maiúsculas, acentuadas e espaços
@@ -25,6 +26,28 @@ const validarCamposObrigatorios = (nome, cpf, endereco) => {
     return null;
 };
 
+// Função para validar campos obrigatórios (nome, cpf, e endereco)
+const validarCamposObrigatoriosPut = (nome, cpf, endereco) => {
+    // Verifica se algum campo foi enviado e se ele é válido
+    if (nome && !nome.trim()) {
+        return 'Nome não pode ser vazio';
+    }
+    if (cpf && !cpf.trim()) {
+        return 'CPF não pode ser vazio';
+    }
+    if (endereco && !endereco.trim()) {
+        return 'Endereço não pode ser vazio';
+    }
+
+    // Caso algum campo seja vazio (mas tenha sido enviado), retorna mensagem de erro
+    if (!nome && !cpf && !endereco) {
+        return 'Pelo menos um campo (nome, CPF ou endereço) deve ser fornecido';
+    }
+
+    // Se tudo estiver OK
+    return null;
+};
+
 // Função para validar se o nome tem pelo menos 2 caracteres
 const validarNomeMinimo = (nome) => {
     if (nome && nome.length < 2) {
@@ -40,48 +63,106 @@ const validarNomeProduto = (nome) => {
     return nomeProdutoRegex.test(nome);
 };
 
-/// Função para validar o preço do produto (deve ser um número positivo maior que zero)
+// Função para validar o preço 
 const validarPreco = (preco) => {
-    // Se o preço for uma string, tentamos substituir a vírgula por ponto
-    let precoComPonto = preco.toString().replace(",", ".");
-
-    // Se o valor inicial tinha vírgula, vamos retornar uma mensagem informando isso
-    if (preco !== precoComPonto) {
-        return { valid: false, message: "O preço deve ser no formato correto: use ponto (.) em vez de vírgula. Exemplo: 4.49" };
+    // Garantir que o preco seja um número real (não uma string)
+    if (typeof preco !== 'number' || isNaN(preco)) {
+        return { valid: false, message: `O valor '${preco}' deve ser um número válido e sem aspas` };
+    }
+    
+    // Garantir que o preço não contenha caracteres inválidos (verifica se o valor é um número)
+    if (!/^\d+(\.\d+)?$/.test(preco.toString())) {
+        return { valid: false, message: `O valor '${preco}' contém caracteres inválidos. Somente números e ponto decimal são permitidos.` };
     }
 
-    // Converte a string para número
-    const precoNumerico = parseFloat(precoComPonto);
-
-    // O preço deve ser um número maior que zero
-    if (isNaN(precoNumerico) || precoNumerico <= 0) {
-        return { valid: false, message: "Preço deve ser um número positivo maior que zero." };
+    // Se o preço for menor ou igual a zero, retorna erro
+    if (preco <= 0) {
+        return { valid: false, message: "Preço deve ser maior que zero." };
     }
 
-    // Se tudo estiver correto, retornamos como válido
-    return { valid: true };
+    // Se o preço for válido, retorna o preço numérico
+    return { valid: true, precoNumerico: preco };
 };
 
+// Exemplo de como salvar no DB
+const salvarProdutoNoDb = async (Produto, nome, preco, estoque) => {
+    try {
+        // Validar o preço
+        const validacaoPreco = validarPreco(preco);
+        if (!validacaoPreco.valid) {
+            throw new Error(validacaoPreco.message);
+        }
 
-// Função para validar o estoque do produto (deve ser um número inteiro não negativo)
+        // Se o preço for válido, utilizamos o precoNumerico (float) para salvar no banco
+        const precoFloat = validacaoPreco.precoNumerico;
+
+        // Criação do produto no banco de dados com preço como float
+        const novoProduto = await Produto.create({
+            nome,
+            preco: precoFloat, // Aqui o preço é armazenado como número
+            estoque
+        });
+
+        return novoProduto;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Erro ao salvar o produto.");
+    }
+};
+
 const validarEstoque = (estoque) => {
-    // Garantir que o estoque seja interpretado como número inteiro, mesmo se for passado como string
-    const estoqueNumerico = parseInt(estoque, 10);
+    
+    // Garantir que o estoque seja um número real (não uma string)
+    if (typeof estoque !== 'number') {
+        return { valid: false, message: `O valor '${estoque}' deve ser sem aspas` };
+    }
 
     // O estoque deve ser um número inteiro não negativo
-    if (!Number.isInteger(estoqueNumerico) || estoqueNumerico < 0) {
-        return { valid: false, message: "O estoque deve ser um número inteiro não negativo." };
+    if (!Number.isInteger(estoque)) {
+        return { valid: false, message: `O valor '${estoque}' deve ser inteiro, não negativo.` };
+    }
+
+    if (estoque < 0) {
+        return { valid: false, message: `O valor '${estoque}' inválido. Não pode ser negativo.` };
     }
 
     // Se tudo estiver correto, retornamos como válido
     return { valid: true };
 };
 
-// Função para validar campos obrigatórios (nome, preço e estoque)
+// Função para validar se todos os campos obrigatórios (nome, preco e estoque) foram informados
 const validarCamposObrigatoriosProduto = (nome, preco, estoque) => {
-    if (!nome || preco === undefined || estoque === undefined) {
-        return 'Nome, Preço e Estoque são obrigatórios';
+    if (!nome || nome.trim() === '') {
+        return 'O campo "nome" é obrigatório.';
     }
+    if (preco === undefined || preco === null) {
+        return 'O campo "preco" é obrigatório.';
+    }
+    if (estoque === undefined || estoque === null) {
+        return 'O campo "estoque" é obrigatório.';
+    }
+    return null;
+};
+
+// Função para validar campos obrigatórios para update
+const validarCamposObrigatoriosProdutoPut = (nome, preco, estoque) => {
+    // Verifica se algum campo foi enviado e se ele não é vazio
+    if (nome && nome === '') {
+        return 'ERRO! Verifique a chave nome';
+    }
+    if (preco && preco === '') {
+        return 'ERRO! Verifique a chave preco';
+    }
+    if (estoque && estoque === '') {
+        return 'ERRO! Verifique a chave Estoque';
+    }
+
+    // Caso algum campo não tenha sido enviado, retorna mensagem de erro
+    if (!nome && !preco && !estoque) {
+        return 'Pelo menos um campo (nome, preco ou estoque) deve ser fornecido';
+    }
+
+    // Se tudo estiver OK
     return null;
 };
 
@@ -91,17 +172,15 @@ const verificarProdutoExistente = async (Produto, nome) => {
     return produtoExistente;
 };
 
-// Função para formatar o preço para 2 casas decimais
-const formatarPreco = (preco) => {
-    // Converte o preço para número com 2 casas decimais
-    const precoNumerico = parseFloat(preco);
-    if (isNaN(precoNumerico)) {
-        throw new Error("Preço inválido");
+// Função de validação de ID
+const validarId = (id) => {
+    // Garantir que o id seja um número inteiro positivo
+    const idNumerico = parseInt(id, 10);  // Convertendo para número inteiro
+    if (!Number.isInteger(idNumerico) || idNumerico <= 0) {
+        return 'ID inválido. O ID deve ser um número inteiro positivo.';
     }
-    return precoNumerico.toFixed(2); // Formata para 2 casas decimais
+    return null;
 };
-
-
 
 module.exports = {
     validarCpf,
@@ -113,6 +192,9 @@ module.exports = {
     validarPreco,
     validarEstoque,
     validarCamposObrigatoriosProduto,
+    validarCamposObrigatoriosPut,
+    validarCamposObrigatoriosProdutoPut,
     verificarProdutoExistente,
-    formatarPreco 
+    salvarProdutoNoDb,
+    validarId,
 };

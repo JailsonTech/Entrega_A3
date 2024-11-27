@@ -1,6 +1,12 @@
 const { Sequelize, Op } = require('sequelize'); // Importando Sequelize para usar os operadores
 const Cliente = require('../models/clientes'); // Importando o modelo Cliente
-const { verificarCpfExistente, validarCpf, validarNome, validarCamposObrigatorios, validarNomeMinimo } = require('../utils/validacoes');
+const { 
+    verificarCpfExistente, 
+    validarCpf, validarNome, 
+    validarCamposObrigatorios, 
+    validarNomeMinimo,
+    validarId
+} = require('../utils/validacoes');
 
 
 // Função para criar um novo cliente
@@ -70,75 +76,6 @@ exports.obterClientes = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao obter clientes', error });
-    }
-};
-
-
-// Função para obter clientes por nome
-exports.obterClientesPorNome = async (req, res) => {
-    try {
-        const { nome } = req.params; // pegando o nome de req.params
-
-        if (!nome) {
-            return res.status(400).json({ message: 'O parâmetro "nome" é obrigatório.' });
-        }
-
-        // Validação do nome (apenas letras e espaços)
-        if (!validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
-        }
-
-        // Buscando clientes que contenham o nome informado, ignorando maiúsculas e minúsculas
-        const clientes = await Cliente.findAll({
-            where: {
-                nome: {
-                    [Op.iLike]: `%${nome}%` // Busca insensível a maiúsculas e minúsculas
-                }
-            }
-        });
-
-        if (clientes.length === 0) {
-            return res.status(404).json({ message: 'Nenhum cliente encontrado com o nome informado.' });
-        }
-
-        // Retorna os clientes encontrados
-        res.status(200).json(clientes); 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao obter clientes por nome', error });
-    }
-};
-
-// Função para obter clientes por CPF
-exports.obterClientesPorCpf = async (req, res) => {
-    try {
-        const { cpf } = req.params; 
-
-        if (!cpf) {
-            return res.status(400).json({ message: 'O parâmetro "cpf" é obrigatório.' });
-        }
-
-        // Validação do CPF
-        if (!validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
-        }
-
-        // Buscando clientes com o CPF informado
-        const clientes = await Cliente.findAll({
-            where: {
-                cpf: cpf
-            }
-        });
-
-        if (clientes.length === 0) {
-            return res.status(404).json({ message: 'Nenhum cliente encontrado com o CPF informado.' });
-        }
-
-        // Retorna os clientes encontrados
-        res.status(200).json(clientes); 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao obter clientes por CPF', error });
     }
 };
 
@@ -376,6 +313,98 @@ exports.deletarTodosClientes = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao deletar clientes.', error });
+    }
+};
+
+// Função para obter clientes por nome
+exports.obterClientesPorNome = async (req, res) => {
+    try {
+        const { nome } = req.params; // pegando o nome de req.params
+
+        if (!nome) {
+            return res.status(400).json({ message: 'O parâmetro "nome" é obrigatório.' });
+        }
+
+        // Validação do nome (apenas letras e espaços)
+        if (!validarNome(nome)) {
+            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
+        }
+
+        // Buscando clientes que contenham o nome informado, ignorando maiúsculas e minúsculas
+        const clientes = await Cliente.findAll({
+            where: {
+                nome: {
+                    [Op.iLike]: `%${nome}%` // Busca insensível a maiúsculas e minúsculas
+                }
+            }
+        });
+
+        if (clientes.length === 0) {
+            return res.status(404).json({ message: 'Nenhum cliente encontrado com o nome informado.' });
+        }
+
+        // Retorna os clientes encontrados
+        res.status(200).json(clientes); 
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao obter clientes por nome', error });
+    }
+};
+
+// Função para obter clientes por CPF
+exports.obterClientesPorCpf = async (req, res) => {
+    try {
+        const { cpf } = req.params; 
+
+        if (!cpf) {
+            return res.status(400).json({ message: 'O parâmetro "cpf" é obrigatório.' });
+        }
+
+        // Validação do CPF
+        if (!validarCpf(cpf)) {
+            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
+        }
+
+        // Buscando clientes com o CPF informado
+        const clientes = await Cliente.findAll({
+            where: {
+                cpf: cpf
+            }
+        });
+
+        if (clientes.length === 0) {
+            return res.status(404).json({ message: 'Nenhum cliente encontrado com o CPF informado.' });
+        }
+
+        // Retorna os clientes encontrados
+        res.status(200).json(clientes); 
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao obter clientes por CPF', error });
+    }
+};
+
+// Função para obter clientes por ID
+exports.obterclientePorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Validação do ID usando a função de validação
+        const erroValidacaoId = validarId(id);
+        if (erroValidacaoId) {
+            return res.status(400).json({ message: erroValidacaoId });
+        }
+
+        const cliente = await Cliente.findByPk(id);
+
+        if (!cliente) {
+            return res.status(404).json({ message: 'cliente não encontrado.' });
+        }
+
+        res.status(200).json(cliente);
+    } catch (error) {
+        console.error('Erro ao buscar cliente por ID:', error); // Mensagem de erro mais detalhada
+        res.status(500).json({ message: 'Erro ao buscar cliente por ID.', error: error.message }); // Exibindo a mensagem de erro
     }
 };
 

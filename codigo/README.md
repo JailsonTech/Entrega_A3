@@ -9,7 +9,7 @@ Atividade para avaliação Facs
 
 3. Use a extensão do vscode -> 'thunder client' ou postman, insomnia para usar os métodos http
 
-# MÉTODOS API
+# MÉTODOS HTTP
 
 1. TABELA CLIENTES..........................................................
   * GET 
@@ -44,7 +44,8 @@ Atividade para avaliação Facs
     - http://localhost:3000/vendedores
       {
         "nome":"jailson",
-        "cpf":"111.222.333-44"
+        "cpf":"111.222.333-44",
+        "endereco:"Endereço A"
       }
 
   * PUT / PATCH
@@ -52,7 +53,8 @@ Atividade para avaliação Facs
     - (por Id)..... http://localhost:3000/vendedores/id/1
       {
         "nome":"jailson",
-        "cpf":"111.222.333-44"
+        "cpf":"111.222.333-44",
+        "endereco:"Endereço A"
       }
 
   * DELETE
@@ -85,6 +87,10 @@ Atividade para avaliação Facs
 
   * DELETE
     - (por nome).... http://localhost:3000/produtos/nome/farinha
-    - (por Id)..... http://localhost:3000/produtos/id/1
-    - (todos)...... http://localhost:3000/produtos/todos
+    - (por Id)...... http://localhost:3000/produtos/id/1
+    - (todos)....... http://localhost:3000/produtos/todos
+
+4. RECEBER/CANCELAR PEDIDO COMPRA..................................
+  * Receber pedido: POST http://localhost:3000/pedidos/comprar
+  * Cancelar pedido: POST http://localhost:3000/pedidos/cancelar
 

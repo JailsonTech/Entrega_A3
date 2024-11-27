@@ -1,4 +1,3 @@
-// src/models/venda.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../utils/database'); // Conexão com o DB
 const Cliente = require('./clientes');  // Importa o modelo de Cliente
@@ -25,28 +24,42 @@ const Venda = sequelize.define('venda', {
         validate: {
             min: 0.01, // Garante que o total seja maior que 0
         },
-        // Cálculo do total baseado no preço do produto e quantidade
-        get() {
-            const quantidade = this.getDataValue('quantidade');
-            const produtoId = this.getDataValue('produtoId');
-            const produto = Produto.findByPk(produtoId); // Pega o produto pelo ID
-            if (produto) {
-                return produto.preco * quantidade;  // Calcula o total baseado no preço do produto
-            }
-            return 0;  // Retorna 0 se o produto não for encontrado
-        },
     },
     data_venda: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY, // Utiliza DATEONLY para armazenar somente a data
         allowNull: false,
         defaultValue: Sequelize.NOW, // Define a data da venda como a data atual
+        get() {
+            const data = this.getDataValue('data_venda'); // Recupera a data
+            if (data) {
+                const [ano, mes, dia] = data.split('-');
+                return `${dia}-${mes}-${ano}`; // Formato d-m-a
+            }
+            return data; // Caso a data não exista, retorna undefined ou nulo
+        },
+        set(value) {
+            // Força o formato para o banco de dados ser armazenado como 'YYYY-MM-DD'
+            const [dia, mes, ano] = value.split('-');
+            const formattedValue = `${ano}-${mes}-${dia}`; // Formato do banco de dados
+            this.setDataValue('data_venda', formattedValue);
+        }
     },
 }, {
     tableName: 'vendas',
     timestamps: false,  // Desativa os campos createdAt e updatedAt
 });
 
-// Definindo os relacionamentos
+// Hook para calcular o total antes de criar a venda
+Venda.beforeCreate(async (venda, options) => {
+    const produto = await Produto.findByPk(venda.produtoId); // Busca o produto pelo ID
+    if (produto) {
+        venda.total = produto.preco * venda.quantidade;  // Calcula o total com base no preço do produto
+    } else {
+        venda.total = 0;  // Se o produto não for encontrado, o total será 0
+    }
+});
+
+// Relacionamentos
 Venda.belongsTo(Cliente, { foreignKey: 'clienteId' });
 Venda.belongsTo(Vendedor, { foreignKey: 'vendedorId' });
 Venda.belongsTo(Produto, { foreignKey: 'produtoId' });
