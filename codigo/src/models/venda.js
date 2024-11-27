@@ -25,16 +25,6 @@ const Venda = sequelize.define('venda', {
         validate: {
             min: 0.01, // Garante que o total seja maior que 0
         },
-        // Cálculo do total baseado no preço do produto e quantidade
-        get() {
-            const quantidade = this.getDataValue('quantidade');
-            const produtoId = this.getDataValue('produtoId');
-            const produto = Produto.findByPk(produtoId); // Pega o produto pelo ID
-            if (produto) {
-                return produto.preco * quantidade;  // Calcula o total baseado no preço do produto
-            }
-            return 0;  // Retorna 0 se o produto não for encontrado
-        },
     },
     data_venda: {
         type: DataTypes.DATE,
@@ -45,6 +35,17 @@ const Venda = sequelize.define('venda', {
     tableName: 'vendas',
     timestamps: false,  // Desativa os campos createdAt e updatedAt
 });
+
+// Método para calcular o total da venda
+Venda.prototype.calcularTotal = async function() {
+    const produto = await Produto.findByPk(this.produtoId); // Pega o produto pelo ID
+    if (produto) {
+        this.total = produto.preco * this.quantidade;  // Calcula o total baseado no preço do produto
+    } else {
+        this.total = 0;  // Retorna 0 se o produto não for encontrado
+    }
+    return this.total;
+};
 
 // Definindo os relacionamentos
 Venda.belongsTo(Cliente, { foreignKey: 'clienteId' });

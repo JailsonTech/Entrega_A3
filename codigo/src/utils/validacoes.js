@@ -26,6 +26,28 @@ const validarCamposObrigatorios = (nome, cpf, endereco) => {
     return null;
 };
 
+// Função para validar campos obrigatórios (nome, cpf, e endereco)
+const validarCamposObrigatoriosPut = (nome, cpf, endereco) => {
+    // Verifica se algum campo foi enviado e se ele é válido
+    if (nome && !nome.trim()) {
+        return 'Nome não pode ser vazio';
+    }
+    if (cpf && !cpf.trim()) {
+        return 'CPF não pode ser vazio';
+    }
+    if (endereco && !endereco.trim()) {
+        return 'Endereço não pode ser vazio';
+    }
+
+    // Caso algum campo seja vazio (mas tenha sido enviado), retorna mensagem de erro
+    if (!nome && !cpf && !endereco) {
+        return 'Pelo menos um campo (nome, CPF ou endereço) deve ser fornecido';
+    }
+
+    // Se tudo estiver OK
+    return null;
+};
+
 // Função para validar se o nome tem pelo menos 2 caracteres
 const validarNomeMinimo = (nome) => {
     if (nome && nome.length < 2) {
@@ -122,6 +144,29 @@ const validarCamposObrigatoriosProduto = (nome, preco, estoque) => {
     return null;
 };
 
+// Função para validar campos obrigatórios para update
+const validarCamposObrigatoriosProdutoPut = (nome, preco, estoque) => {
+    // Verifica se algum campo foi enviado e se ele não é vazio
+    if (nome && nome === '') {
+        return 'ERRO! Verifique a chave nome';
+    }
+    if (preco && preco === '') {
+        return 'ERRO! Verifique a chave preco';
+    }
+    if (estoque && estoque === '') {
+        return 'ERRO! Verifique a chave Estoque';
+    }
+
+    // Caso algum campo não tenha sido enviado, retorna mensagem de erro
+    if (!nome && !preco && !estoque) {
+        return 'Pelo menos um campo (nome, preco ou estoque) deve ser fornecido';
+    }
+
+    // Se tudo estiver OK
+    return null;
+};
+
+
 
 // Função para verificar se o nome do produto já existe no banco de dados
 const verificarProdutoExistente = async (Produto, nome) => {
@@ -149,6 +194,8 @@ module.exports = {
     validarPreco,
     validarEstoque,
     validarCamposObrigatoriosProduto,
+    validarCamposObrigatoriosPut,
+    validarCamposObrigatoriosProdutoPut,
     verificarProdutoExistente,
     salvarProdutoNoDb,
     validarIdProduto 

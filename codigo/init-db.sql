@@ -9,7 +9,8 @@ CREATE TABLE clientes (
 CREATE TABLE vendedores (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255),
-    cpf VARCHAR(20) UNIQUE
+    cpf VARCHAR(20) UNIQUE,
+    endereco VARCHAR(255)
 );
 
 CREATE TABLE produtos (
@@ -76,9 +77,9 @@ INSERT INTO clientes (nome, cpf, endereco) VALUES
 ('Julia', '245.898.789-08', 'Endereço 3'),
 ('Larissa', '734.848.949-40', 'Endereço 4');
 
-INSERT INTO vendedores (nome, cpf) VALUES
-('Alberto', '157.177.158-61'),
-('Suzana', '272.852.292-26');
+INSERT INTO vendedores (nome, cpf, endereco) VALUES
+('Alberto', '157.177.158-61', 'Endereço A'),
+('Suzana', '272.852.292-26', 'Endereço B');
 
 INSERT INTO produtos (nome, preco, estoque) VALUES
 ('feijão', 6.99, 100),

@@ -44,7 +44,8 @@ Atividade para avaliação Facs
     - http://localhost:3000/vendedores
       {
         "nome":"jailson",
-        "cpf":"111.222.333-44"
+        "cpf":"111.222.333-44",
+        "endereco:"Endereço A"
       }
 
   * PUT / PATCH
@@ -52,7 +53,8 @@ Atividade para avaliação Facs
     - (por Id)..... http://localhost:3000/vendedores/id/1
       {
         "nome":"jailson",
-        "cpf":"111.222.333-44"
+        "cpf":"111.222.333-44",
+        "endereco:"Endereço A"
       }
 
   * DELETE

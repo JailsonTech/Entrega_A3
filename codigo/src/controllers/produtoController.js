@@ -7,7 +7,8 @@ const {
     validarEstoque,
     validarCamposObrigatoriosProduto,
     validarIdProduto,
-    verificarProdutoExistente
+    validarCamposObrigatoriosProdutoPut,
+    verificarProdutoExistente,
 
 } = require('../utils/validacoes'); // Importando as funções de validação
 
@@ -21,7 +22,7 @@ exports.criarProduto = async (req, res) => {
         if (camposInvalidos) {
             return res.status(400).json({ message: camposInvalidos });
         }
-
+        
         // Validando o nome do produto
         if (!validarNomeProduto(nome)) {
             return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
@@ -69,10 +70,10 @@ exports.atualizarProdutoPorId = async (req, res) => {
         const { id } = req.params;
         const { nome, preco, estoque } = req.body;
 
-        // Validação de campos obrigatórios (no caso de nome, preco ou estoque estarem presentes)
-        const camposInvalidos = validarCamposObrigatoriosProduto(nome, preco, estoque);
-        if (camposInvalidos) {
-            return res.status(400).json({ message: camposInvalidos });
+        // Validação de campos obrigatórios para update
+        const camposInvalidosPut = validarCamposObrigatoriosProdutoPut(nome, preco, estoque);
+        if (camposInvalidosPut) {
+            return res.status(400).json({ message: camposInvalidosPut });
         }
 
         // Validação do ID usando a função de validação
@@ -86,6 +87,11 @@ exports.atualizarProdutoPorId = async (req, res) => {
         if (!produto) {
             return res.status(404).json({ message: 'Produto não encontrado.' });
         }
+
+        // Validando o nome do produto
+        if (!validarNomeProduto(nome)) {
+            return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
+        }        
 
         // Variável para armazenar a mensagem de sucesso
         let mensagem = '';
@@ -127,7 +133,7 @@ exports.atualizarProdutoPorId = async (req, res) => {
         // Se não houve alteração, retornar mensagem de nenhuma alteração
         if (nenhumaAlteracao) {
             return res.status(200).json({
-                message: 'Nenhuma atualização foi feita.',
+                message: 'Nenhuma atualização foi feita. Produto já está com os dados informados.',
                 produto,
             });
         }
@@ -155,13 +161,13 @@ exports.atualizarProdutoPorNome = async (req, res) => {
         const { nome } = req.params; // Nome do produto para localizar
         const { nome: novoNome, preco, estoque } = req.body; // Novos valores para o produto
 
-        // Validação de campos obrigatórios (no caso de nome, preco ou estoque estarem presentes)
-        const camposInvalidos = validarCamposObrigatoriosProduto(novoNome, preco, estoque);
-        if (camposInvalidos) {
-            return res.status(400).json({ message: camposInvalidos });
+        // Validação de campos obrigatórios para update
+        const camposInvalidosPut = validarCamposObrigatoriosProdutoPut(novoNome, preco, estoque);
+        if (camposInvalidosPut) {
+            return res.status(400).json({ message: camposInvalidosPut });
         }
 
-        // Buscar o produto pelo nome
+       // Buscar o produto pelo nome
         const produto = await Produtos.findOne({ where: { nome } });
         if (!produto) {
             return res.status(404).json({ message: 'Produto não encontrado.' });

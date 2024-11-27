@@ -17,6 +17,10 @@ const Vendedores = sequelize.define('vendedores', {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+    },
+    endereco: {
+        type: DataTypes.STRING,
+        allowNull: true,
     }
 }, {
     tableName: 'vendedores',  // Tabela com o nome em minúsculo
