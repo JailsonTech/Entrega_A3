@@ -142,26 +142,25 @@ exports.atualizarVendedorPorId = async (req, res) => {
 exports.atualizarVendedorPorCpf = async (req, res) => {
     try {
         const { cpf } = req.params;
-        const { nome, cpf: novoCpf } = req.body;
+        const { nome, cpf: novoCpf, endereco } = req.body;
 
         // Verificar se pelo menos um dos campos foi enviado para atualizar
-        if (!nome && !novoCpf) {
-            return res.status(400).json({ message: 'Nome ou CPF são obrigatórios para atualização' });
+        if (!nome && !novoCpf && !endereco) {
+            return res.status(400).json({ message: 'Nome, CPF ou Endereço são obrigatórios para atualização' });
         }
 
-        // Validar nome
-        if (nome && !validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
+        // Validar nome, se fornecido
+        if (nome) {
+            validarNome(nome);  // Se falhar, um erro será lançado
+            const nomeMinimoError = validarNomeMinimo(nome);
+            if (nomeMinimoError) {
+                return res.status(400).json({ message: nomeMinimoError });
+            }
         }
 
-        const nomeMinimoError = validarNomeMinimo(nome);
-        if (nomeMinimoError) {
-            return res.status(400).json({ message: nomeMinimoError });
-        }
-
-        // Validar CPF (formato) usando a função validarCpf
-        if (novoCpf) {            
-            validarCpf(novoCpf); 
+        // Validar CPF (formato)
+        if (novoCpf) {
+            validarCpf(novoCpf);  // Se falhar, um erro será lançado
         }
 
         // Buscar o vendedor pelo CPF
@@ -170,45 +169,61 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
             return res.status(404).json({ message: 'Vendedor não encontrado com esse CPF.' });
         }
 
-        let mensagemSucesso = "";
+        // Variável para armazenar as mensagens de sucesso
+        let mensagensAlteradas = [];
 
         // Atualizar CPF se necessário
         if (novoCpf && vendedor.cpf !== novoCpf) {
-            // Chama a função verificarCpfExistente para garantir que o novo CPF não exista
+            // Verificar se o novo CPF já existe no banco
             await verificarCpfExistente(Vendedor, novoCpf);  
-
             vendedor.cpf = novoCpf;
-            mensagemSucesso = "CPF alterado com sucesso!";
+            mensagensAlteradas.push("CPF alterado com sucesso!");
         }
 
         // Atualizar nome se necessário
         if (nome && vendedor.nome !== nome) {
             vendedor.nome = nome;
-            if (!mensagemSucesso) {
-                mensagemSucesso = "Nome alterado com sucesso!";
+            mensagensAlteradas.push("Nome alterado com sucesso!");
+        }
+
+        // Atualizar endereço se necessário
+        if (endereco && vendedor.endereco !== endereco) {
+            if (endereco.trim() === '') {
+                return res.status(400).json({ message: 'Endereço não pode ser vazio' });
             }
+            vendedor.endereco = endereco;
+            mensagensAlteradas.push("Endereço alterado com sucesso!");
         }
 
         // Se nenhum campo foi alterado
-        if (!mensagemSucesso) {
+        if (mensagensAlteradas.length === 0) {
             return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
         }
 
         // Salvar as alterações
         await vendedor.save();
 
+        // Se os campos foram alterados, cria a mensagem combinada
+        const mensagemSucesso = mensagensAlteradas.join(" "); // Junta todas as mensagens
+
         // Retornar a resposta com a mensagem de sucesso e os dados atualizados
         res.status(200).json({
             message: mensagemSucesso,
-            vendedor: vendedor
+            vendedor: {
+                id: vendedor.id,
+                nome: vendedor.nome,
+                cpf: vendedor.cpf,
+                endereco: vendedor.endereco // Incluir o endereço atualizado
+            }
         });
 
     } catch (error) {
-        // Se houver erro, capturar a exceção e retornar a mensagem de erro apropriada
+        // Capturar qualquer erro e retornar uma mensagem apropriada
         console.error(error);
         res.status(400).json({ message: error.message || 'Erro ao atualizar vendedor', error });
     }
 };
+
 
 
 // Função para deletar um vendedor pelo ID
