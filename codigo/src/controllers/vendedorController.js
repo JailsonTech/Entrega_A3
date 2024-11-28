@@ -12,12 +12,18 @@ const {
 // Função para criar um novo vendedor
 exports.criarVendedor = async (req, res) => {
     try {
-        const { nome, cpf } = req.body;
+        const { nome, cpf, endereco } = req.body;
 
         // Verificar se todos os campos obrigatórios foram fornecidos (nome e cpf)
-        if (!nome || !cpf) {
-            return res.status(400).json({ message: 'Nome e CPF são obrigatórios' });
+        if (!nome || !cpf || !endereco) {
+            return res.status(400).json({ message: 'Nome, CPF e Endereço são obrigatórios' });
         }
+
+        // Validação do CPF (formato correto)
+        validarCpf(cpf); // Se o CPF for inválido, a função irá lançar um erro
+
+        // Verificar se o CPF já existe no banco
+        await verificarCpfExistente(Vendedor, cpf);  // Se já existir, erro será lançado
 
         // Validação do nome (apenas letras e espaços)
         validarNome(nome);  // Se falhar, um erro será lançado
@@ -26,13 +32,15 @@ exports.criarVendedor = async (req, res) => {
         const nomeMinimoError = validarNomeMinimo(nome);
         if (nomeMinimoError) {
             return res.status(400).json({ message: nomeMinimoError });
+        }        
+
+        // Verificar o endereço (se fornecido)
+        if (endereco && endereco.trim() === '') {
+            return res.status(400).json({ message: 'Endereço não pode ser vazio' });
         }
 
-        // Verificar se o CPF já existe no banco
-        await verificarCpfExistente(Vendedor, cpf);  // Se já existir, erro será lançado
-
         // Criação do vendedor no banco de dados
-        const novoVendedor = await Vendedor.create({ nome, cpf });
+        const novoVendedor = await Vendedor.create({ nome, cpf, endereco });
 
         // Retornando a resposta com a mensagem de sucesso
         res.status(201).json({
@@ -49,11 +57,11 @@ exports.criarVendedor = async (req, res) => {
 exports.atualizarVendedorPorId = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nome, cpf } = req.body;
+        const { nome, cpf, endereco } = req.body;
 
         // Verificar se pelo menos um dos campos foi enviado para atualizar
-        if (!nome && !cpf) {
-            return res.status(400).json({ message: 'Nome ou CPF são obrigatórios para atualização' });
+        if (!nome && !cpf && !endereco) {
+            return res.status(400).json({ message: 'Nome, CPF ou Endereço são obrigatórios para atualização' });
         }
 
         // Validar nome e CPF
@@ -75,30 +83,42 @@ exports.atualizarVendedorPorId = async (req, res) => {
             return res.status(404).json({ message: 'Vendedor não encontrado' });
         }
 
-        let mensagemSucesso = "";
+        // Variável para montar a mensagem de sucesso
+        let mensagensAlteradas = [];
 
         // Atualizar CPF se necessário
         if (cpf && vendedor.cpf !== cpf) {
             await verificarCpfExistente(Vendedor, cpf);  // Verifica se o CPF já existe
             vendedor.cpf = cpf;
-            mensagemSucesso = "CPF alterado com sucesso!";
+            mensagensAlteradas.push("CPF alterado com sucesso!");
         }
 
         // Atualizar nome se necessário
         if (nome && vendedor.nome !== nome) {
             vendedor.nome = nome;
-            if (!mensagemSucesso) {
-                mensagemSucesso = "Nome alterado com sucesso!";
+            mensagensAlteradas.push("Nome alterado com sucesso!");
+        }
+
+        // Atualizar endereço se necessário
+        if (endereco && vendedor.endereco !== endereco) {
+            // Verificar se o endereço não está vazio
+            if (endereco.trim() === '') {
+                return res.status(400).json({ message: 'Endereço não pode ser vazio' });
             }
+            vendedor.endereco = endereco;
+            mensagensAlteradas.push("Endereço alterado com sucesso!");
         }
 
         // Se nenhum campo foi alterado
-        if (!mensagemSucesso) {
+        if (mensagensAlteradas.length === 0) {
             return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
         }
 
         // Salvar as alterações
         await vendedor.save();
+
+        // Se os três campos foram alterados, exibe uma mensagem combinada
+        const mensagemSucesso = mensagensAlteradas.join(" "); // Junta as mensagens de sucesso
 
         // Retornar a resposta com a mensagem de sucesso e os dados atualizados
         res.status(200).json({
@@ -106,7 +126,8 @@ exports.atualizarVendedorPorId = async (req, res) => {
             vendedor: {
                 id: vendedor.id,
                 nome: vendedor.nome,
-                cpf: vendedor.cpf
+                cpf: vendedor.cpf,
+                endereco: vendedor.endereco // Incluir o endereço atualizado
             }
         });
 
@@ -115,6 +136,7 @@ exports.atualizarVendedorPorId = async (req, res) => {
         res.status(400).json({ message: error.message }); // Retorna a mensagem de erro gerada nas validações
     }
 };
+
 
 // Função para atualizar um vendedor pelo CPF
 exports.atualizarVendedorPorCpf = async (req, res) => {
