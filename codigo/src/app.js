@@ -3,7 +3,7 @@ const cors = require('cors');
 const clienteRoutes = require('./routes/clienteRoutes');
 const vendedorRoutes = require('./routes/vendedorRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
-const vendaRoutes = require('./routes/vendaRoutes');
+const vendaRoutes = require('./routes/vendaRoutes'); // Importando as rotas de vendas
 const pedidoCompraRoutes = require('./routes/pedidoCompraRoutes'); // Importando as rotas de pedidos de compra
 
 const sequelize = require('./utils/database');
@@ -80,7 +80,7 @@ const inserirDadosIniciais = async () => {
             { nome: 'farinha', preco: 8.99, estoque: 95 },
             { nome: 'sal', preco: 2.79, estoque: 58 },
             { nome: 'açúcar', preco: 5.99, estoque: 12 },
-            { nome: 'vinagre', preco: 9.99, estoque: 24 },
+            { nome: 'vinagre', preco: 9.99, estoque: 25 },
             { nome: 'azeite', preco: 28.99, estoque: 48 },
             { nome: 'tapioca', preco: 4.99, estoque: 36 },
             { nome: 'detergente', preco: 2.29, estoque: 66 }
