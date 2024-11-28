@@ -7,10 +7,9 @@ const router = express.Router();
 router.get('/', relatorioController.obterRelatorios); 
 
 // Rota para gerar o relatório de produtos com baixo estoque
-router.get('/baixo-estoque', relatorioController.relatorioProdutosBaixoEstoque);
+router.get('/baixo-estoque', relatorioController.relatorioBaixoEstoque);
 
 // Rota para deletar relatório por ID
 router.delete('/:id', relatorioController.deletarRelatorio);
-
 
 module.exports = router;

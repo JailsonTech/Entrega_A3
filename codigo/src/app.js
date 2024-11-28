@@ -12,7 +12,8 @@ const Clientes = require('./models/clientes');
 const Vendedores = require('./models/vendedores');
 const Produtos = require('./models/produtos');
 const Vendas = require('./models/vendas');  // Importando o modelo de Venda
-const Relatorios = require('./models/relatorios');  
+const Relatorios = require('./models/relatorios');
+  
 
 const app = express();
 
