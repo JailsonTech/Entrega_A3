@@ -22,7 +22,7 @@ const criarVenda = async (req, res) => {
         }
 
         // Verificar se o produto existe
-        const produto = await Produto.findOne({ where: { nome: item } }); // Anteriormente where: { item }, alterado por conta de erro ao criar venda.
+        const produto = await Produto.findOne({ where: { item } });
         if (!produto) {
             return res.status(404).json({ mensagem: 'Produto não encontrado.' });
         }
@@ -54,7 +54,7 @@ const criarVenda = async (req, res) => {
             vendedorNome: vendedor.nome,
             item: produto.item,
             quantidade,
-            total, 
+            total,  // Retornar o total calculado
         });
 
     } catch (error) {

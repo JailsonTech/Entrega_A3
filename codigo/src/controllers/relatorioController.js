@@ -1,26 +1,26 @@
 // src/controllers/relatorioController.js
-
 const Relatorios = require('../models/relatorios');
 const { Op } = require('sequelize');
-const Venda = require('../models/venda'); 
 const Produtos = require('../models/produtos');
-const Clientes = require('../models/clientes');
 
 // Função para obter todos os relatórios.
 const obterRelatorios = async (req, res) => {
     try {
         const relatorios = await Relatorios.findAll();
+        if (relatorios.length === 0) {
+            return res.status(404).json({ message: 'Nenhum relatório encontrado.' });
+        }
         return res.status(200).json(relatorios);
     } catch (error) {
         console.error('Erro:', error);
-        return res.status(500).json({ error: 'Erro ao buscar' });
+        return res.status(500).json({ error: 'Erro ao buscar relatórios.' });
     }
 };
 
 // Função para gerar relatório de produtos com baixo estoque
 const relatorioBaixoEstoque = async (req, res) => {
     try {
-        const LIMITE_ESTOQUE = 25; 
+        const LIMITE_ESTOQUE = 30; 
         const BaixoEstoque = await Produtos.findAll({
             where: {
                 estoque: {
@@ -28,19 +28,33 @@ const relatorioBaixoEstoque = async (req, res) => {
                 }
             },
             limit: 5, 
-            order: [['estoque', 'ASC']]  // Ordenar os produtos com menor estoque primeiro
+            order: [['estoque', 'ASC']]
         });
 
-        const relatorio = await Relatorios.create({
-            nome: 'Produtos com Baixo Estoque',
-            tipo: 'baixo_estoque',
-            dados: BaixoEstoque,
+        // Verificar se já existe um relatório do tipo 'baixo_estoque'
+        const relatorioExistente = await Relatorios.findOne({
+            where: {
+                tipo: 'baixo_estoque'
+            }
         });
 
-        return res.status(200).json(relatorio);
+        if (relatorioExistente) {
+            // Atualizar o relatório existente
+            relatorioExistente.dados = BaixoEstoque; // Atualizar os dados do relatório
+            await relatorioExistente.save();
+            return res.status(200).json(relatorioExistente); 
+        } else {
+            // Criar um novo relatório
+            const relatorio = await Relatorios.create({
+                nome: 'Produtos com Baixo Estoque',
+                tipo: 'baixo_estoque',
+                dados: BaixoEstoque,
+            });
+            return res.status(200).json(relatorio); 
+        }
     } catch (error) {
-        console.error('Erro', error);
-        return res.status(500).json({ error: 'Erro ao gerar' });
+        console.error('Erro:', error);
+        return res.status(500).json({ error: 'Erro ao gerar ou atualizar o relatório' });
     }
 };
 
@@ -49,24 +63,22 @@ const deletarRelatorio = async (req, res) => {
     try {
         const { id } = req.params;
         const relatorio = await Relatorios.destroy({
-            where: {
-                id
-            }
+            where: { id }
         });
 
         if (relatorio === 0) {
-            return res.status(404).json({ error: 'Relatório não encontrado' });
+            return res.status(404).json({ error: 'Relatório não encontrado.' });
         }
 
-        return res.status(200).json({ message: `Relatório com ID ${id} deletado com sucesso` });
+        return res.status(200).json({ message: `Relatório com ID ${id} deletado com sucesso.` });
     } catch (error) {
-        console.error('Erro', error);
-        return res.status(500).json({ error: 'Erro' });
+        console.error('Erro:', error);
+        return res.status(500).json({ error: 'Erro ao deletar relatório.' });
     }
 };
 
 module.exports = {
     relatorioBaixoEstoque,
     deletarRelatorio,
-    obterRelatorios  
+    obterRelatorios, 
 };
