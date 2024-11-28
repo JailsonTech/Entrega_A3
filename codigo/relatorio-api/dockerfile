@@ -1,0 +1,24 @@
+# Usando a imagem base do Node.js
+FROM node:20.17.0
+
+# Atualiza o apt-get e instala o cliente PostgreSQL (para usar o pg_isready)
+RUN apt-get update && apt-get install -y postgresql-client
+
+# Define o diretório de trabalho dentro do contêiner
+WORKDIR /usr/src/app
+
+# Copia o package.json e o package-lock.json para dentro do contêiner
+COPY package.json ./  
+COPY package-lock.json ./  
+
+# Instala as dependências do projeto
+RUN npm install
+
+# Copia o código-fonte da aplicação para o contêiner
+COPY ./src ./src
+
+# Expondo a porta em que a aplicação irá rodar
+EXPOSE 3030
+
+# Usar o comando pg_isready para aguardar o banco de dados e depois iniciar a aplicação
+ENTRYPOINT ["sh", "-c", "until pg_isready -h db -p 5432 -U usuario; do echo 'Aguardando o banco de dados...'; sleep 2; done; npm start"]

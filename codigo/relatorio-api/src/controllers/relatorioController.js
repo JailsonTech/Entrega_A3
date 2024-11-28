@@ -1,7 +1,6 @@
-// src/controllers/relatorioController.js
 const Relatorios = require('../models/relatorios');
-const { Op } = require('sequelize');
-const Produtos = require('../models/produtos');
+const { Sequelize, Op } = require('sequelize');
+const sequelize = require('../utils/database');
 
 // Função para obter todos os relatórios.
 const obterRelatorios = async (req, res) => {
@@ -20,29 +19,29 @@ const obterRelatorios = async (req, res) => {
 // Função para gerar relatório de produtos com baixo estoque
 const relatorioBaixoEstoque = async (req, res) => {
     try {
-        const LIMITE_ESTOQUE = 30; 
-        const BaixoEstoque = await Produtos.findAll({
-            where: {
-                estoque: {
-                    [Op.lt]: LIMITE_ESTOQUE, 
-                }
-            },
-            limit: 5, 
-            order: [['estoque', 'ASC']]
-        });
+        const LIMITE_ESTOQUE = 30;
+
+        // Consulta direta ao banco de dados para buscar produtos com baixo estoque
+        const [BaixoEstoque] = await sequelize.query(
+            `SELECT * FROM produtos WHERE estoque < :limite ORDER BY estoque ASC LIMIT 5`,
+            {
+                replacements: { limite: LIMITE_ESTOQUE },
+                type: Sequelize.QueryTypes.SELECT,
+            }
+        );
 
         // Verificar se já existe um relatório do tipo 'baixo_estoque'
         const relatorioExistente = await Relatorios.findOne({
             where: {
-                tipo: 'baixo_estoque'
-            }
+                tipo: 'baixo_estoque',
+            },
         });
 
         if (relatorioExistente) {
             // Atualizar o relatório existente
             relatorioExistente.dados = BaixoEstoque; // Atualizar os dados do relatório
             await relatorioExistente.save();
-            return res.status(200).json(relatorioExistente); 
+            return res.status(200).json(relatorioExistente);
         } else {
             // Criar um novo relatório
             const relatorio = await Relatorios.create({
@@ -50,7 +49,7 @@ const relatorioBaixoEstoque = async (req, res) => {
                 tipo: 'baixo_estoque',
                 dados: BaixoEstoque,
             });
-            return res.status(200).json(relatorio); 
+            return res.status(200).json(relatorio);
         }
     } catch (error) {
         console.error('Erro:', error);
@@ -63,7 +62,7 @@ const deletarRelatorio = async (req, res) => {
     try {
         const { id } = req.params;
         const relatorio = await Relatorios.destroy({
-            where: { id }
+            where: { id },
         });
 
         if (relatorio === 0) {
@@ -80,5 +79,5 @@ const deletarRelatorio = async (req, res) => {
 module.exports = {
     relatorioBaixoEstoque,
     deletarRelatorio,
-    obterRelatorios, 
+    obterRelatorios,
 };

@@ -4,7 +4,6 @@ const clienteRoutes = require('./routes/clienteRoutes');
 const vendedorRoutes = require('./routes/vendedorRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
 const vendaRoutes = require('./routes/vendaRoutes');
-const relatorioRoutes = require('./routes/relatorioRoutes'); 
 const pedidoCompraRoutes = require('./routes/pedidoCompraRoutes'); // Importando as rotas de pedidos de compra
 
 const sequelize = require('./utils/database');
@@ -12,7 +11,6 @@ const Clientes = require('./models/clientes');
 const Vendedores = require('./models/vendedores');
 const Produtos = require('./models/produtos');
 const Vendas = require('./models/vendas');  // Importando o modelo de Venda
-const Relatorios = require('./models/relatorios');
   
 
 const app = express();
@@ -34,7 +32,6 @@ app.use('/clientes', clienteRoutes);    // Rota para clientes
 app.use('/vendedores', vendedorRoutes); // Rota para vendedores
 app.use('/produtos', produtoRoutes);   // Rota para produtos
 app.use('/vendas', vendaRoutes);       // Rota para vendas
-app.use('/relatorios', relatorioRoutes); // Rota para relatórios
 app.use('/pedidos', pedidoCompraRoutes); // Rota para pedidos de compra
 
 // Função para verificar a conexão com o banco
