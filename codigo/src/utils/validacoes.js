@@ -1,28 +1,55 @@
 // Função para validar o CPF (formato 111.222.333-44)
 const validarCpf = (cpf) => {
+    // Expressão regular para validar o formato do CPF
     const cpfRegex = /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/;
-    return cpfRegex.test(cpf);
+
+    // Verifica se o CPF corresponde ao formato
+    if (!cpfRegex.test(cpf)) {
+        throw new Error('O CPF deve estar no formato correto: 111.222.333-44');
+    }
 };
+
 
 
 // Função para validar o Nome (apenas letras e espaços)
 const validarNome = (nome) => {
     // A regex já permite letras minúsculas, maiúsculas, acentuadas e espaços
     const nomeRegex = /^[a-zA-ZÀ-ÿ\s]+$/; // Permite letras (minúsculas e maiúsculas), acentuadas e espaços
-    return nomeRegex.test(nome);
+
+    if (!nomeRegex.test(nome)) {
+        throw new Error('O nome deve conter apenas letras (acentuadas) e espaços.');
+    }
 };
+
 
 // Função para verificar se o CPF já existe no banco de dados
 const verificarCpfExistente = async (Cliente, cpf) => {
     const clienteExistente = await Cliente.findOne({ where: { cpf } });
-    return clienteExistente;
+    if (clienteExistente) {
+        throw new Error('CPF já cadastrado.');
+    }
 };
+
 
 // Função para validar campos obrigatórios (nome, cpf, e endereco)
 const validarCamposObrigatorios = (nome, cpf, endereco) => {
-    if (!nome || !cpf || !endereco) {
-        return 'Nome, CPF e Endereço são obrigatórios';
+    // Verifica se algum campo foi enviado e se ele é válido
+    if (nome && !nome.trim()) {
+        return 'Nome não pode ser vazio';
     }
+    if (cpf && !cpf.trim()) {
+        return 'CPF não pode ser vazio';
+    }
+    if (endereco && !endereco.trim()) {
+        return 'Endereço não pode ser vazio';
+    }
+
+    // Caso algum campo seja vazio (mas tenha sido enviado), retorna mensagem de erro
+    if (!nome && !cpf && !endereco) {
+        return 'Pelo menos um campo (nome, CPF ou endereço) deve ser fornecido';
+    }
+
+    // Se tudo estiver OK
     return null;
 };
 
@@ -111,19 +138,19 @@ const salvarProdutoNoDb = async (Produto, nome, preco, estoque) => {
 };
 
 const validarEstoque = (estoque) => {
-    
     // Garantir que o estoque seja um número real (não uma string)
-    if (typeof estoque !== 'number') {
-        return { valid: false, message: `O valor '${estoque}' deve ser sem aspas` };
+    if (typeof estoque !== 'number' || isNaN(estoque)) {
+        return { valid: false, message: `O valor '${estoque}' deve ser um número válido e sem aspas` };
     }
 
-    // O estoque deve ser um número inteiro não negativo
+    // O estoque deve ser um número inteiro não negativo, permitindo 0
     if (!Number.isInteger(estoque)) {
-        return { valid: false, message: `O valor '${estoque}' deve ser inteiro, não negativo.` };
+        return { valid: false, message: `O valor '${estoque}' deve ser um número inteiro, não negativo.` };
     }
 
+    // O estoque pode ser 0, desde que seja um número inteiro não negativo
     if (estoque < 0) {
-        return { valid: false, message: `O valor '${estoque}' inválido. Não pode ser negativo.` };
+        return { valid: false, message: `O valor '${estoque}' é inválido. Não pode ser negativo.` };
     }
 
     // Se tudo estiver correto, retornamos como válido
@@ -146,19 +173,21 @@ const validarCamposObrigatoriosProduto = (nome, preco, estoque) => {
 
 // Função para validar campos obrigatórios para update
 const validarCamposObrigatoriosProdutoPut = (nome, preco, estoque) => {
-    // Verifica se algum campo foi enviado e se ele não é vazio
+    // Verifica se nome foi enviado e se ele não é vazio
     if (nome && nome === '') {
         return 'ERRO! Verifique a chave nome';
     }
+    // Verifica se preço foi enviado e se ele não é vazio
     if (preco && preco === '') {
         return 'ERRO! Verifique a chave preco';
     }
-    if (estoque && estoque === '') {
+    // A verificação de estoque não deve impedir o valor 0, então apenas verificamos se foi fornecido e não está vazio
+    if (estoque !== undefined && estoque !== null && estoque === '') {
         return 'ERRO! Verifique a chave Estoque';
     }
 
-    // Caso algum campo não tenha sido enviado, retorna mensagem de erro
-    if (!nome && !preco && !estoque) {
+    // Caso algum campo não tenha sido enviado (todos nulos ou indefinidos), retorna mensagem de erro
+    if (!nome && preco === undefined && estoque === undefined) {
         return 'Pelo menos um campo (nome, preco ou estoque) deve ser fornecido';
     }
 

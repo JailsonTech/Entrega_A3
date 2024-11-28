@@ -25,6 +25,7 @@ app.use((err, req, res, next) => {
     next(); // Se o erro não for de sintaxe, passa para o próximo middleware ou controlador
 });
 
+
 // Rotas
 app.use('/clientes', clienteRoutes);    // Rota para clientes
 app.use('/vendedores', vendedorRoutes); // Rota para vendedores
