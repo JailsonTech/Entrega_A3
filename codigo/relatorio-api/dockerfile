@@ -1,3 +1,6 @@
+
+# DOCKERFILE - RELATÓRIO-API
+
 # Usando a imagem base do Node.js
 FROM node:20.17.0
 

@@ -5,13 +5,11 @@ const vendedorRoutes = require('./routes/vendedorRoutes');
 const produtoRoutes = require('./routes/produtoRoutes');
 const vendaRoutes = require('./routes/vendaRoutes'); // Importando as rotas de vendas
 const pedidoCompraRoutes = require('./routes/pedidoCompraRoutes'); // Importando as rotas de pedidos de compra
-
 const sequelize = require('./utils/database');
 const Clientes = require('./models/clientes');
 const Vendedores = require('./models/vendedores');
 const Produtos = require('./models/produtos');
 const Vendas = require('./models/vendas');  // Importando o modelo de Venda
-  
 
 const app = express();
 
