@@ -16,6 +16,23 @@ services:
       - app-network
     restart: always
 
+  relatorio-api:
+    build:
+      context: ./relatorio-api  # Diretório da "relatorio-api"
+    environment:
+      - DATABASE_URL=postgresql://usuario:usuario@db:5432/db-postgres
+    depends_on:
+      - db
+    ports:
+      - "3030:3030"
+    volumes:
+      - ./relatorio-api:/usr/src/app
+      - /usr/src/app/node_modules
+    working_dir: /usr/src/app
+    networks:
+      - app-network
+    restart: always
+
   db:
     image: postgres:13
     environment:

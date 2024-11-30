@@ -19,6 +19,11 @@ exports.criarVendedor = async (req, res) => {
             return res.status(400).json({ message: 'Nome, CPF e Endereço são obrigatórios' });
         }
 
+        // Validação do nome (apenas letras e espaços)
+        if (!validarNome(nome)) {
+            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
+        }
+
         // Validação do CPF (formato correto)
         validarCpf(cpf); // Se o CPF for inválido, a função irá lançar um erro
 
@@ -249,11 +254,6 @@ exports.deletarVendedorPorId = async (req, res) => {
 exports.deletarVendedorPorCpf = async (req, res) => {
     try {
         const { cpf } = req.params;  // Obtém o CPF da URL
-
-        // Validação do CPF (formato)
-        if (!validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
-        }
 
         // Buscar o vendedor pelo CPF
         const vendedor = await Vendedor.findOne({ where: { cpf } });

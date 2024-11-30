@@ -57,28 +57,6 @@ exports.criarCliente = async (req, res) => {
     }
 };
 
-// Função para obter todos os clientes
-exports.obterClientes = async (req, res) => {
-    try {
-        // Buscar todos os clientes no banco de dados
-        const clientes = await Cliente.findAll(); 
-
-        // Verifica se nenhum cliente foi encontrado
-        if (clientes.length === 0) {
-            return res.status(404).json({ message: 'Nenhum cliente encontrado' });
-        }
-
-        // Ajusta o formato da resposta para garantir que seja um objeto simples (plain)
-        const clientesData = clientes.map(cliente => cliente.get({ plain: true }));
-
-        // Retorna os clientes encontrados com status 200 (OK)
-        res.status(200).json(clientesData);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao obter clientes', error });
-    }
-};
-
 // Função para atualizar um cliente pelo ID
 exports.atualizarClientePorId = async (req, res) => {
     try {
@@ -325,11 +303,6 @@ exports.obterClientesPorNome = async (req, res) => {
             return res.status(400).json({ message: 'O parâmetro "nome" é obrigatório.' });
         }
 
-        // Validação do nome (apenas letras e espaços)
-        if (!validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
-        }
-
         // Buscando clientes que contenham o nome informado, ignorando maiúsculas e minúsculas
         const clientes = await Cliente.findAll({
             where: {
@@ -358,11 +331,6 @@ exports.obterClientesPorCpf = async (req, res) => {
 
         if (!cpf) {
             return res.status(400).json({ message: 'O parâmetro "cpf" é obrigatório.' });
-        }
-
-        // Validação do CPF
-        if (!validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
         }
 
         // Buscando clientes com o CPF informado
@@ -405,6 +373,28 @@ exports.obterclientePorId = async (req, res) => {
     } catch (error) {
         console.error('Erro ao buscar cliente por ID:', error); // Mensagem de erro mais detalhada
         res.status(500).json({ message: 'Erro ao buscar cliente por ID.', error: error.message }); // Exibindo a mensagem de erro
+    }
+};
+
+// Função para obter todos os clientes
+exports.obterClientes = async (req, res) => {
+    try {
+        // Buscar todos os clientes no banco de dados
+        const clientes = await Cliente.findAll(); 
+
+        // Verifica se nenhum cliente foi encontrado
+        if (clientes.length === 0) {
+            return res.status(404).json({ message: 'Nenhum cliente encontrado' });
+        }
+
+        // Ajusta o formato da resposta para garantir que seja um objeto simples (plain)
+        const clientesData = clientes.map(cliente => cliente.get({ plain: true }));
+
+        // Retorna os clientes encontrados com status 200 (OK)
+        res.status(200).json(clientesData);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao obter clientes', error });
     }
 };
 

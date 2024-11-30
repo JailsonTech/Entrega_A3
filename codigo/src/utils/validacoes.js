@@ -1,14 +1,13 @@
+// src/utils/validacoes.js
+
 // Função para validar o CPF (formato 111.222.333-44)
 const validarCpf = (cpf) => {
     // Expressão regular para validar o formato do CPF
     const cpfRegex = /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/;
 
     // Verifica se o CPF corresponde ao formato
-    if (!cpfRegex.test(cpf)) {
-        throw new Error('O CPF deve estar no formato correto: 111.222.333-44');
-    }
+    return cpfRegex.test(cpf); // Retorna true ou false dependendo do formato
 };
-
 
 
 // Função para validar o Nome (apenas letras e espaços)
@@ -16,9 +15,8 @@ const validarNome = (nome) => {
     // A regex já permite letras minúsculas, maiúsculas, acentuadas e espaços
     const nomeRegex = /^[a-zA-ZÀ-ÿ\s]+$/; // Permite letras (minúsculas e maiúsculas), acentuadas e espaços
 
-    if (!nomeRegex.test(nome)) {
-        throw new Error('O nome deve conter apenas letras (acentuadas) e espaços.');
-    }
+    // Retorna true ou false com base na validação
+    return nomeRegex.test(nome);
 };
 
 
