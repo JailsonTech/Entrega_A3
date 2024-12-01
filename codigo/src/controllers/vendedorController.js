@@ -250,11 +250,6 @@ exports.deletarVendedorPorCpf = async (req, res) => {
     try {
         const { cpf } = req.params;  // Obtém o CPF da URL
 
-        // Validação do CPF (formato)
-        if (!validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
-        }
-
         // Buscar o vendedor pelo CPF
         const vendedor = await Vendedor.findOne({ where: { cpf } });
 

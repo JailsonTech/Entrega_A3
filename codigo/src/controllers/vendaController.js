@@ -6,7 +6,7 @@ const Produto = require('../models/produtos');
 
 // Função para criar uma venda
 const criarVenda = async (req, res) => {
-    const { clienteNome, vendedorNome, item, quantidade } = req.body;
+    const { clienteNome, vendedorNome, nome, quantidade } = req.body;
 
     try {
         // Verificar se o cliente existe
@@ -22,7 +22,7 @@ const criarVenda = async (req, res) => {
         }
 
         // Verificar se o produto existe
-        const produto = await Produto.findOne({ where: { item } });
+        const produto = await Produto.findOne({ where: { nome } });
         if (!produto) {
             return res.status(404).json({ mensagem: 'Produto não encontrado.' });
         }
@@ -39,7 +39,7 @@ const criarVenda = async (req, res) => {
         const venda = await Vendas.create({
             cliente_nome: cliente.nome,     // Usar o nome do cliente
             vendedor_nome: vendedor.nome,   // Usar o nome do vendedor
-            produto_item: produto.item,     // Usar o nome do produto
+            produto_item: produto.nome,     // Usar o nome do produto
             quantidade,
             total,  // Passar o total calculado explicitamente
         });
@@ -52,7 +52,7 @@ const criarVenda = async (req, res) => {
         return res.status(201).json({
             clienteNome: cliente.nome,
             vendedorNome: vendedor.nome,
-            item: produto.item,
+            item: produto.nome,
             quantidade,
             total,  // Retornar o total calculado
         });

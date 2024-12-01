@@ -16,6 +16,23 @@ const obterRelatorios = async (req, res) => {
     }
 };
 
+// Função para obter um relatório específico por ID
+const obterRelatorioPorId = async (req, res) => {
+    try {
+        const { id } = req.params;  // Obtém o ID da URL
+        const relatorio = await Relatorios.findByPk(id);  // Busca o relatório pelo ID
+
+        if (!relatorio) {
+            return res.status(404).json({ message: 'Relatório não encontrado.' });
+        }
+
+        return res.status(200).json(relatorio);
+    } catch (error) {
+        console.error('Erro:', error);
+        return res.status(500).json({ error: 'Erro ao buscar o relatório.' });
+    }
+};
+
 // Função para gerar relatório de produtos com baixo estoque
 const relatorioBaixoEstoque = async (req, res) => {
     try {

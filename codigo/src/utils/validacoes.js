@@ -11,8 +11,6 @@ const validarCpf = (cpf) => {
     }
 };
 
-
-
 // Função para validar o Nome (apenas letras e espaços)
 const validarNome = (nome) => {
     // A regex já permite letras minúsculas, maiúsculas, acentuadas e espaços

@@ -275,11 +275,6 @@ exports.deletarClientePorCpf = async (req, res) => {
     try {
         const { cpf } = req.params;  // Obtém o CPF do cliente da URL
 
-        // Validação do CPF (formato 111.222.333-44)
-        if (!validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
-        }
-
         // Buscar o cliente pelo CPF
         const cliente = await Cliente.findOne({ where: { cpf } });
 
@@ -326,8 +321,9 @@ exports.obterClientesPorNome = async (req, res) => {
         }
 
         // Validação do nome (apenas letras e espaços)
-        if (!validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
+        const erroValidacaoNome = validarNome(nome); // Supondo que validarNome retorne um erro ou mensagem se inválido
+        if (erroValidacaoNome) {
+            return res.status(400).json({ message: erroValidacaoNome });
         }
 
         // Buscando clientes que contenham o nome informado, ignorando maiúsculas e minúsculas
@@ -346,8 +342,8 @@ exports.obterClientesPorNome = async (req, res) => {
         // Retorna os clientes encontrados
         res.status(200).json(clientes); 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao obter clientes por nome', error });
+        console.error('Erro ao obter clientes por nome:', error);
+        res.status(500).json({ message: 'Erro ao obter clientes por nome', error: error.message });
     }
 };
 
@@ -361,7 +357,8 @@ exports.obterClientesPorCpf = async (req, res) => {
         }
 
         // Validação do CPF
-        if (!validarCpf(cpf)) {
+        const erroValidacaoCpf = validarCpf(cpf);
+        if (erroValidacaoCpf) {
             return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
         }
 
@@ -379,8 +376,8 @@ exports.obterClientesPorCpf = async (req, res) => {
         // Retorna os clientes encontrados
         res.status(200).json(clientes); 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao obter clientes por CPF', error });
+        console.error('Erro ao obter clientes por CPF:', error);
+        res.status(500).json({ message: 'Erro ao obter clientes por CPF', error: error.message });
     }
 };
 
