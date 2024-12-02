@@ -5,12 +5,11 @@ const {
     validarNomeProduto,
     validarPreco,
     validarEstoque,
-    validarCamposObrigatoriosProduto,
     validarId,
     validarCamposObrigatoriosProdutoPut,
-    verificarProdutoExistente,
 
 } = require('../utils/validacoes'); // Importando as funções de validação
+
 
 // Função para criar um novo produto
 exports.criarProduto = async (req, res) => {
@@ -18,31 +17,39 @@ exports.criarProduto = async (req, res) => {
         const { nome, preco, estoque } = req.body;
 
         // Validação de campos obrigatórios (nome, preco e estoque devem ser informados)
-        const camposInvalidos = validarCamposObrigatoriosProduto(nome, preco, estoque);
-        if (camposInvalidos) {
-            return res.status(400).json({ message: camposInvalidos });
+        if (!req.body.hasOwnProperty('nome') || !nome) {
+            return res.status(400).json({ message: "Chave 'nome' errada ou ausente." });
         }
-        
-        // Validando o nome do produto
-        if (!validarNomeProduto(nome)) {
+
+        if (!req.body.hasOwnProperty('preco') || !preco) {
+            return res.status(400).json({ message: "Chave 'preco' errada ou ausente." });
+        }
+
+        if (!req.body.hasOwnProperty('estoque') || estoque === undefined) {
+            return res.status(400).json({ message: "Chave 'estoque' errada ou ausente." });
+        }
+
+        // Validando o nome do produto (apenas letras e espaços)
+        const erroNomeProduto = validarNomeProduto(nome);  // Função que valida o nome do produto
+        if (!erroNomeProduto) {
             return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
         }
 
         // Verificar se o produto já existe no banco de dados
-        const produtoExistente = await verificarProdutoExistente(Produtos, nome);
+        const produtoExistente = await Produtos.findOne({ where: { nome } });
         if (produtoExistente) {
             return res.status(400).json({ message: 'Produto já cadastrado com esse nome.' });
         }
 
         // Validar o preço
-        const validacaoPreco = validarPreco(preco);
+        const validacaoPreco = validarPreco(preco);  // Função que valida o preço
         if (!validacaoPreco.valid) {
             return res.status(400).json({ message: validacaoPreco.message });
         }
         const precoFloat = validacaoPreco.precoNumerico;
 
         // Validar o estoque
-        const validacaoEstoque = validarEstoque(estoque);
+        const validacaoEstoque = validarEstoque(estoque);  // Função que valida o estoque
         if (!validacaoEstoque.valid) {
             return res.status(400).json({ message: validacaoEstoque.message });
         }
@@ -50,61 +57,67 @@ exports.criarProduto = async (req, res) => {
         // Criar o produto diretamente no banco de dados
         const novoProduto = await Produtos.create({
             nome,
-            preco: precoFloat, // Armazenando o preço como número
+            preco: precoFloat,  // Armazenando o preço como número
             estoque
         });
 
+        // Retornar a resposta com sucesso
         res.status(201).json({
             message: 'Produto criado com sucesso!',
             produto: novoProduto,
         });
     } catch (error) {
         console.error(error);
+        // Tratar erro de violação de chave única
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({ message: 'Produto já cadastrado com esse nome.' });
+        }
+
+        // Para outros erros
         res.status(500).json({ message: 'Erro ao criar produto.', error: error.message });
     }
 };
 
-// Função para atualizar produto por ID
 exports.atualizarProdutoPorId = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { nome, preco, estoque } = req.body;
+        const { id } = req.params;  // ID do produto vindo da URL
+        const { nome, preco, estoque } = req.body;  // Dados a serem atualizados
 
-        // Validação de campos obrigatórios para update
-        const camposInvalidosPut = validarCamposObrigatoriosProdutoPut(nome, preco, estoque);
-        if (camposInvalidosPut) {
-            return res.status(400).json({ message: camposInvalidosPut });
+        // Validar o ID
+        const erroId = validarId(id);  // Função que valida o ID
+        if (erroId) {
+            return res.status(400).json({ message: erroId });
         }
 
-        // Validação do ID usando a função de validação
-        const erroValidacaoId = validarId(id);
-        if (erroValidacaoId) {
-            return res.status(400).json({ message: erroValidacaoId });
+        // Verificar se o corpo da requisição contém chaves erradas 
+        const chavesValidas = ['nome', 'preco', 'estoque'];
+        const chavesRecebidas = Object.keys(req.body);
+        
+        // Se houver chaves não válidas no corpo
+        for (let chave of chavesRecebidas) {
+            if (!chavesValidas.includes(chave)) {
+                return res.status(400).json({ message: `Chave '${chave}' errada ou ausente.` });
+            }
         }
 
-        // Buscar o produto pelo ID
+        // Verificar se o produto existe
         const produto = await Produtos.findByPk(id);
         if (!produto) {
-            return res.status(404).json({ message: 'Produto não encontrado.' });
+            return res.status(404).json({ message: `Produto com o ID ${id} não encontrado.` });
         }
 
-        // Validando o nome do produto
-        if (!validarNomeProduto(nome)) {
-            return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
-        }        
-
-        // Variável para armazenar a mensagem de sucesso
-        let mensagem = '';
+        // Variável para armazenar as mensagens de sucesso
+        let mensagensAlteradas = [];
         let nenhumaAlteracao = true; // Flag para verificar se houve alteração
 
         // Comparar e verificar alterações no nome
         if (nome && nome !== produto.nome) {
-            const produtoComMesmoNome = await Produtos.findOne({ where: { nome } });
-            if (produtoComMesmoNome) {
-                return res.status(400).json({ message: 'Produto com esse nome já existe.' });
+            const erroNomeProduto = validarNomeProduto(nome);  // Função que valida o nome
+            if (erroNomeProduto) {
+                return res.status(400).json({ message: erroNomeProduto });
             }
             produto.nome = nome;
-            mensagem += 'Nome do produto atualizado com sucesso. ';
+            mensagensAlteradas.push("Nome do produto alterado com sucesso!");
             nenhumaAlteracao = false;
         }
 
@@ -114,8 +127,8 @@ exports.atualizarProdutoPorId = async (req, res) => {
             if (!validacaoPreco.valid) {
                 return res.status(400).json({ message: validacaoPreco.message });
             }
-            produto.preco = validacaoPreco.precoNumerico; // Atualizando o preço
-            mensagem += 'Preço do produto atualizado com sucesso. ';
+            produto.preco = validacaoPreco.precoNumerico;  // Atualizando o preço
+            mensagensAlteradas.push("Preço do produto alterado com sucesso!");
             nenhumaAlteracao = false;
         }
 
@@ -125,33 +138,47 @@ exports.atualizarProdutoPorId = async (req, res) => {
             if (!validacaoEstoque.valid) {
                 return res.status(400).json({ message: validacaoEstoque.message });
             }
-            produto.estoque = estoque; // Atualiza o estoque
-            mensagem += 'Estoque do produto atualizado com sucesso. ';
+            produto.estoque = estoque;  // Atualizando o estoque
+            mensagensAlteradas.push("Estoque do produto alterado com sucesso!");
             nenhumaAlteracao = false;
         }
 
         // Se não houve alteração, retornar mensagem de nenhuma alteração
         if (nenhumaAlteracao) {
             return res.status(200).json({
-                message: 'Nenhuma atualização foi feita. Produto já está com os dados informados.',
+                message: 'Nenhuma alteração realizada. O produto já está com os dados informados.',
                 produto,
             });
         }
 
-        // Atualizar as alterações no banco de dados diretamente com o Sequelize
-        await produto.update({
-            nome: produto.nome,
-            preco: produto.preco,
-            estoque: produto.estoque
+        // Salvar as alterações no banco de dados
+        await produto.save();
+
+        // Se os campos foram alterados, cria a mensagem combinada
+        const mensagemSucesso = mensagensAlteradas.join(" "); // Junta todas as mensagens
+
+        // Retornar a resposta com a mensagem de sucesso e os dados atualizados
+        res.status(200).json({
+            message: mensagemSucesso,
+            produto: {
+                id: produto.id,
+                nome: produto.nome,
+                preco: produto.preco,
+                estoque: produto.estoque // Incluir o estoque atualizado
+            }
         });
 
-        res.status(200).json({
-            message: mensagem.trim(),
-            produto,
-        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao atualizar produto.', error: error.message });
+        console.error("Erro ao atualizar produto:", error);
+
+        // Caso o erro seja um objeto e tenha uma mensagem
+        const mensagemErro = error.message || 'Erro desconhecido ao atualizar produto';
+
+        // Retorne a resposta com a mensagem de erro detalhada
+        return res.status(500).json({
+            message: mensagemErro,
+            error: error
+        });
     }
 };
 

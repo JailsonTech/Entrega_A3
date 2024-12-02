@@ -96,7 +96,14 @@ const validarCamposObrigatoriosPut = (nome, cpf, endereco) => {
 const validarNomeProduto = (nome) => {
     // A regex permite apenas letras (maiusculas e minúsculas), acentuadas e espaços
     const nomeProdutoRegex = /^[a-zA-ZÀ-ÿ\s]+$/;
-    return nomeProdutoRegex.test(nome);
+
+    // Se o nome não for válido, retorna uma mensagem de erro
+    if (!nomeProdutoRegex.test(nome)) {
+        return 'Nome de produto inválido. Apenas letras e espaços são permitidos.';
+    }
+
+    // Se o nome for válido, retorna null
+    return null;
 };
 
 // Função para validar o preço 
@@ -107,7 +114,8 @@ const validarPreco = (preco) => {
     }
     
     // Garantir que o preço não contenha caracteres inválidos (verifica se o valor é um número)
-    if (!/^\d+(\.\d+)?$/.test(preco.toString())) {
+    const precoStr = preco.toString();  // Converte para string para garantir a comparação
+    if (!/^\d+(\.\d+)?$/.test(precoStr)) {
         return { valid: false, message: `O valor '${preco}' contém caracteres inválidos. Somente números e ponto decimal são permitidos.` };
     }
 
