@@ -28,35 +28,47 @@ exports.criarCliente = async (req, res) => {
         }
 
         // Validação do nome (apenas letras e espaços)
-        if (!validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
+        const erroNome = validarNome(nome); // Função que valida o nome
+        if (erroNome) {
+            return res.status(400).json({ message: erroNome });
         }
 
         // Validação do CPF (formato 111.222.333-44)
-        if (!validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
+        const erroCpf = validarCpf(cpf);  // Função que valida o CPF
+        if (erroCpf) {
+            return res.status(400).json({ message: erroCpf });
         }
 
-        // Verificando se o CPF já existe
+        // Verificar se o CPF já existe no banco de dados
         const clienteExistente = await Cliente.findOne({ where: { cpf } });
         if (clienteExistente) {
-            return res.status(400).json({ message: 'CPF já cadastrado, Insira outro.' });
+            return res.status(400).json({ message: 'CPF já cadastrado, insira outro.' });
+        }
+
+        // Validar o nome com mínimo de 2 caracteres
+        const nomeMinimoError = validarNomeMinimo(nome);
+        if (nomeMinimoError) {
+            return res.status(400).json({ message: nomeMinimoError });
+        }
+
+        // Verificar o endereço (se fornecido)
+        if (endereco && endereco.trim() === '') {
+            return res.status(400).json({ message: 'Endereço não pode ser vazio' });
         }
 
         // Criação do cliente no banco de dados
         const novoCliente = await Cliente.create({ nome, cpf, endereco });
 
-        // Retornando o cliente criado com status 201 (Created) e mensagem de sucesso
+        // Retornar a resposta com a mensagem de sucesso
         res.status(201).json({
-            message: 'Cliente criado com sucesso',
-            cliente: novoCliente
+            message: 'Cliente cadastrado com sucesso!',
+            cliente: novoCliente  // Retornando o cliente recém-criado
         });
     } catch (error) {
         console.error(error);
-
         // Tratando erro de violação de CPF único
         if (error.name === 'SequelizeUniqueConstraintError') {
-            return res.status(400).json({ message: 'CPF já cadastrado, Insira outro.' });
+            return res.status(400).json({ message: 'CPF já cadastrado, insira outro.' });
         }
 
         // Para outros erros
