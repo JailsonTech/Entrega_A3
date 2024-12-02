@@ -165,7 +165,12 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
 
         // Validar CPF (formato)
         if (novoCpf) {
-            validarCpf(novoCpf);  // Se falhar, um erro será lançado
+
+            // Validação do CPF (formato)
+            const erroCpf = validarCpf(novoCpf);  // Se falhar, um erro será retornado
+            if (erroCpf) {
+                return res.status(400).json({ message: erroCpf });  // Retorna a mensagem de erro da validação
+            }
         }
 
         // Buscar o vendedor pelo CPF
@@ -258,6 +263,12 @@ exports.deletarVendedorPorCpf = async (req, res) => {
         // Buscar o vendedor pelo CPF
         const vendedor = await Vendedor.findOne({ where: { cpf } });
 
+        // Validação do CPF (formato)
+        const erroCpf = validarCpf(cpf);  // Se falhar, um erro será retornado
+        if (erroCpf) {
+            return res.status(400).json({ message: erroCpf });  // Retorna a mensagem de erro da validação
+        }
+
         if (!vendedor) {
             return res.status(404).json({ message: 'Vendedor não encontrado com esse CPF.' });
         }
@@ -315,7 +326,10 @@ exports.obterVendedoresPorCpf = async (req, res) => {
         const { cpf } = req.params;  // Pegando o parâmetro 'cpf' da URL
 
         // Validação do CPF (formato)
-        validarCpf(cpf);  // Se falhar, um erro será lançado
+        const erroCpf = validarCpf(cpf);  // Se falhar, um erro será retornado
+        if (erroCpf) {
+            return res.status(400).json({ message: erroCpf });  // Retorna a mensagem de erro da validação
+        }
 
         // Buscando vendedores pelo CPF
         const vendedores = await Vendedor.findAll({
@@ -343,11 +357,16 @@ exports.obterVendedoresPorNome = async (req, res) => {
     try {
         const { nome } = req.params;
 
+        // Verifica se o nome foi informado
         if (!nome) {
             return res.status(400).json({ message: 'O parâmetro nome é obrigatório.' });
         }
 
-        validarNome(nome);  // Se falhar, um erro será lançado
+        // Valida o nome
+        const erroNome = validarNome(nome);  // Verifica a validação do nome
+        if (erroNome) {
+            return res.status(400).json({ message: erroNome });  // Se houver erro, retorna a mensagem
+        }
 
         // Buscando vendedores pelo nome usando ILIKE (case insensitive)
         const vendedores = await Vendedor.findAll({
@@ -358,16 +377,19 @@ exports.obterVendedoresPorNome = async (req, res) => {
             }
         });
 
+        // Verifica se algum vendedor foi encontrado
         if (vendedores.length === 0) {
             return res.status(404).json({ message: `Nenhum vendedor encontrado com o nome: ${nome}` });
         }
 
+        // Retorna os vendedores encontrados
         res.status(200).json(vendedores);
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: error.message }); // Retorna a mensagem de erro gerada nas validações
+        res.status(500).json({ message: 'Erro ao obter vendedores por nome.', error: error.message });  // Erro genérico
     }
 };
+
 
 // Função para obter um vendedor por ID
 exports.obterVendedorPorId = async (req, res) => {

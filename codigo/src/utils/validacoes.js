@@ -6,17 +6,15 @@ const validarCpf = (cpf) => {
     const cpfRegex = /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/;
 
     // Verifica se o CPF corresponde ao formato
-    return cpfRegex.test(cpf); // Retorna true ou false dependendo do formato
-};
+    const isValido = cpfRegex.test(cpf); 
 
+    // Se o CPF não for válido, retorna uma mensagem de erro
+    if (!isValido) {
+        return 'CPF inválido. O formato deve ser 111.222.333-44.';
+    }
 
-// Função para validar o Nome (apenas letras e espaços)
-const validarNome = (nome) => {
-    // A regex já permite letras minúsculas, maiúsculas, acentuadas e espaços
-    const nomeRegex = /^[a-zA-ZÀ-ÿ\s]+$/; // Permite letras (minúsculas e maiúsculas), acentuadas e espaços
-
-    // Retorna true ou false com base na validação
-    return nomeRegex.test(nome);
+    // Se o CPF for válido, retorna null
+    return null;
 };
 
 
@@ -28,6 +26,19 @@ const verificarCpfExistente = async (Cliente, cpf) => {
     }
 };
 
+// Função para validar o Nome (apenas letras e espaços)
+const validarNome = (nome) => {
+    // A regex já permite letras minúsculas, maiúsculas, acentuadas e espaços
+    const nomeRegex = /^[a-zA-ZÀ-ÿ\s]+$/; // Permite letras (minúsculas e maiúsculas), acentuadas e espaços
+
+    // Se o nome não for válido, retorna uma mensagem de erro
+    if (!nomeRegex.test(nome)) {
+        return 'Nome inválido. Apenas letras e espaços são permitidos.';
+    }
+
+    // Se o nome for válido, retorna null
+    return null;
+};
 
 // Função para validar campos obrigatórios (nome, cpf, e endereco)
 const validarCamposObrigatorios = (nome, cpf, endereco) => {
