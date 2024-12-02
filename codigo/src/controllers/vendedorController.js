@@ -66,44 +66,52 @@ exports.criarVendedor = async (req, res) => {
         res.status(400).json({ message: error.message }); // Retorna a mensagem de erro gerada nas validações
     }
 };
-
 // Função para atualizar um vendedor pelo ID
 exports.atualizarVendedorPorId = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { nome, cpf, endereco } = req.body;
+        const { id } = req.params;  // ID do vendedor vindo da URL
+        const { nome, cpf: novoCpf, endereco } = req.body;  // Dados a serem atualizados
 
-        // Verificar se pelo menos um dos campos foi enviado para atualizar
-        if (!nome && !cpf && !endereco) {
-            return res.status(400).json({ message: 'Nome, CPF ou Endereço são obrigatórios para atualização' });
+        // Verificar se pelo menos um dos campos foi enviado para atualização
+        if (!nome && !novoCpf && !endereco) {
+            return res.status(400).json({ message: 'Chaves Nome, CPF ou Endereço errados ou ausentes' });
         }
 
-        // Validar nome e CPF
+        // Validar nome, se fornecido
         if (nome) {
-            validarNome(nome);  // Se falhar, um erro será lançado
-            const nomeMinimoError = validarNomeMinimo(nome);
+            const erroNome = validarNome(nome);  // Função que valida o nome
+            if (erroNome) {
+                return res.status(400).json({ message: erroNome });
+            }
+
+            const nomeMinimoError = validarNomeMinimo(nome);  // Validação do nome mínimo
             if (nomeMinimoError) {
                 return res.status(400).json({ message: nomeMinimoError });
             }
         }
 
-        if (cpf) {
-            validarCpf(cpf);  // Se falhar, um erro será lançado
+        // Validar CPF, se fornecido
+        if (novoCpf) {
+            const erroCpf = validarCpf(novoCpf);  // Função que valida o CPF
+            if (erroCpf) {
+                return res.status(400).json({ message: erroCpf });
+            }
         }
 
-        // Buscar o vendedor pelo ID
-        const vendedor = await Vendedor.findByPk(id);
+        // Verificar se o vendedor com o ID fornecido existe
+        const vendedor = await Vendedor.findByPk(id);  // Buscando o vendedor pelo ID
         if (!vendedor) {
-            return res.status(404).json({ message: 'Vendedor não encontrado' });
+            return res.status(404).json({ message: `Vendedor com o ID ${id} não encontrado.` });
         }
 
-        // Variável para montar a mensagem de sucesso
+        // Variável para armazenar as mensagens de sucesso
         let mensagensAlteradas = [];
 
         // Atualizar CPF se necessário
-        if (cpf && vendedor.cpf !== cpf) {
-            await verificarCpfExistente(Vendedor, cpf);  // Verifica se o CPF já existe
-            vendedor.cpf = cpf;
+        if (novoCpf && vendedor.cpf !== novoCpf) {
+            // Verificar se o novo CPF já existe no banco
+            await verificarCpfExistente(Vendedor, novoCpf);  
+            vendedor.cpf = novoCpf;
             mensagensAlteradas.push("CPF alterado com sucesso!");
         }
 
@@ -115,7 +123,6 @@ exports.atualizarVendedorPorId = async (req, res) => {
 
         // Atualizar endereço se necessário
         if (endereco && vendedor.endereco !== endereco) {
-            // Verificar se o endereço não está vazio
             if (endereco.trim() === '') {
                 return res.status(400).json({ message: 'Endereço não pode ser vazio' });
             }
@@ -125,14 +132,14 @@ exports.atualizarVendedorPorId = async (req, res) => {
 
         // Se nenhum campo foi alterado
         if (mensagensAlteradas.length === 0) {
-            return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
+            return res.status(400).json({ message: 'Nenhuma alteração realizada.' });
         }
 
-        // Salvar as alterações
+        // Salvar as alterações no banco de dados
         await vendedor.save();
 
-        // Se os três campos foram alterados, exibe uma mensagem combinada
-        const mensagemSucesso = mensagensAlteradas.join(" "); // Junta as mensagens de sucesso
+        // Se os campos foram alterados, cria a mensagem combinada
+        const mensagemSucesso = mensagensAlteradas.join(" "); // Junta todas as mensagens
 
         // Retornar a resposta com a mensagem de sucesso e os dados atualizados
         res.status(200).json({
@@ -146,11 +153,18 @@ exports.atualizarVendedorPorId = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(400).json({ message: error.message }); // Retorna a mensagem de erro gerada nas validações
+        console.error("Erro ao atualizar vendedor:", error);
+
+        // Caso o erro seja um objeto e tenha uma mensagem
+        const mensagemErro = error.message || 'Erro desconhecido ao atualizar vendedor';
+
+        // Retorne a resposta com a mensagem de erro detalhada
+        return res.status(500).json({
+            message: mensagemErro,
+            error: error
+        });
     }
 };
-
 
 // Função para atualizar um vendedor pelo CPF
 exports.atualizarVendedorPorCpf = async (req, res) => {
