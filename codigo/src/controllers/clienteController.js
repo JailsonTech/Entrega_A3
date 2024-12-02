@@ -188,89 +188,104 @@ exports.atualizarClientePorId = async (req, res) => {
     }
 };
 
+
 // Função para atualizar um cliente pelo CPF
 exports.atualizarClientePorCpf = async (req, res) => {
     try {
-        const { cpf } = req.params; // Obtém o CPF do cliente da URL
-        const { nome, endereco, cpf: novoCpf } = req.body; // Obtém os dados para atualização do corpo da requisição
+        const { cpf } = req.params;
+        const { nome, cpf: novoCpf, endereco } = req.body;
 
-        // Verificar se pelo menos um dos campos foi enviado para atualização
-        if (!nome && !endereco && !novoCpf) {
-            return res.status(400).json({ message: 'Pelo menos um dos seguintes campos deve ser fornecido: "nome", "endereco", "cpf"' });
-        }
+        // Verificar se o corpo da requisição contém chaves erradas (diferentes de "nome", "cpf", "endereco")
+        const chavesValidas = ['nome', 'cpf', 'endereco'];
+        const chavesRecebidas = Object.keys(req.body);
 
-        // Validar nome
-        if (nome && !validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
-        }
-
-        // Verificar o nome mínimo (se for fornecido)
-        const nomeMinimoError = validarNomeMinimo(nome);
-        if (nomeMinimoError) {
-            return res.status(400).json({ message: nomeMinimoError });
-        }
-
-        // Validar CPF se foi fornecido
-        if (novoCpf && !validarCpf(novoCpf)) {
-            return res.status(400).json({ message: 'Novo CPF inválido. O formato deve ser 111.222.333-44.' });
-        }
-
-        // Se o novo CPF foi fornecido, verificar se já existe um cliente com esse CPF
-        if (novoCpf) {
-            const cpfExistente = await Cliente.findOne({ where: { cpf: novoCpf } });
-            if (cpfExistente) {
-                return res.status(400).json({ message: 'Já existe um cliente com esse CPF.' });
+        // Se houver chaves não válidas no corpo
+        for (let chave of chavesRecebidas) {
+            if (!chavesValidas.includes(chave)) {
+                return res.status(400).json({ message: `Chave '${chave}' errada ou ausente.` });
             }
         }
 
-        // Buscar o cliente pelo CPF antigo
+        // Buscar o cliente pelo CPF
         const cliente = await Cliente.findOne({ where: { cpf } });
         if (!cliente) {
             return res.status(404).json({ message: 'Cliente não encontrado com esse CPF.' });
         }
 
-        let mensagemSucesso = "";
+        // Variável para armazenar as mensagens de sucesso
+        let mensagensAlteradas = [];
 
-        // Atualizar CPF se necessário
-        if (novoCpf && cliente.cpf !== novoCpf) {
-            // Atualiza o CPF para o novo CPF
-            cliente.cpf = novoCpf;
-            mensagemSucesso = "CPF alterado com sucesso!";
+        // Validar nome, se fornecido
+        if (nome) {
+            const erroNome = validarNome(nome);  // Função que valida o nome
+            if (erroNome) {
+                return res.status(400).json({ message: erroNome });
+            }
+
+            const nomeMinimoError = validarNomeMinimo(nome);  // Validação do nome mínimo
+            if (nomeMinimoError) {
+                return res.status(400).json({ message: nomeMinimoError });
+            }
+
+            // Atualizar nome se necessário
+            if (cliente.nome !== nome) {
+                cliente.nome = nome;
+                mensagensAlteradas.push("Nome alterado com sucesso!");
+            }
         }
 
-        // Atualizar nome se necessário
-        if (nome && cliente.nome !== nome) {
-            cliente.nome = nome;
-            if (!mensagemSucesso) {
-                mensagemSucesso = "Nome alterado com sucesso!";
+        // Validar CPF, se fornecido
+        if (novoCpf) {
+            const erroCpf = validarCpf(novoCpf);  // Função que valida o CPF
+            if (erroCpf) {
+                return res.status(400).json({ message: erroCpf });
+            }
+
+            // Verificar se o novo CPF já existe no banco
+            if (cliente.cpf !== novoCpf) {
+                await verificarCpfExistente(Cliente, novoCpf);
+                cliente.cpf = novoCpf;
+                mensagensAlteradas.push("CPF alterado com sucesso!");
             }
         }
 
         // Atualizar endereço se necessário
-        if (endereco && cliente.endereco !== endereco) {
-            cliente.endereco = endereco;
-            if (!mensagemSucesso) {
-                mensagemSucesso = "Endereço alterado com sucesso!";
+        if (endereco) {
+            if (endereco.trim() === '') {
+                return res.status(400).json({ message: 'Endereço não pode ser vazio' });
+            }
+            if (cliente.endereco !== endereco) {
+                cliente.endereco = endereco;
+                mensagensAlteradas.push("Endereço alterado com sucesso!");
             }
         }
 
         // Se nenhum campo foi alterado
-        if (!mensagemSucesso) {
-            return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
+        if (mensagensAlteradas.length === 0) {
+            return res.status(400).json({ message: 'Nenhuma alteração realizada.' });
         }
 
         // Salvar as alterações no banco de dados
         await cliente.save();
 
+        // Se os campos foram alterados, cria a mensagem combinada
+        const mensagemSucesso = mensagensAlteradas.join(" "); // Junta todas as mensagens
+
         // Retornar a resposta com a mensagem de sucesso e os dados atualizados
         res.status(200).json({
             message: mensagemSucesso,
-            cliente: cliente
+            cliente: {
+                id: cliente.id,
+                nome: cliente.nome,
+                cpf: cliente.cpf,
+                endereco: cliente.endereco // Incluir o endereço atualizado
+            }
         });
 
     } catch (error) {
+        // Capturar qualquer erro e retornar uma mensagem apropriada
         console.error(error);
-        res.status(500).json({ message: 'Erro ao atualizar cliente', error });
+        res.status(400).json({ message: error.message || 'Erro ao atualizar cliente', error });
     }
 };
 

@@ -187,33 +187,14 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
         const { cpf } = req.params;
         const { nome, cpf: novoCpf, endereco } = req.body;
 
-        // Verificar se pelo menos um dos campos foi enviado para atualizar
-        if (!nome && !novoCpf && !endereco) {
-            return res.status(400).json({ message: 'Chaves Nome, CPF ou Endereço errado ou ausente' });
-        }
+        // Verificar se o corpo da requisição contém chaves erradas (diferentes de "nome", "cpf", "endereco")
+        const chavesValidas = ['nome', 'cpf', 'endereco'];
+        const chavesRecebidas = Object.keys(req.body);
 
-         // Validação do nome (apenas letras e espaços)
-         const erroNome = validarNome(nome);
-         if (erroNome) {
-             return res.status(400).json({ message: erroNome });
-         }
-
-        // Validar nome, se fornecido
-        if (nome) {
-            validarNome(nome);  // Se falhar, um erro será lançado
-            const nomeMinimoError = validarNomeMinimo(nome);
-            if (nomeMinimoError) {
-                return res.status(400).json({ message: nomeMinimoError });
-            }
-        }
-
-        // Validar CPF (formato)
-        if (novoCpf) {
-
-            // Validação do CPF (formato)
-            const erroCpf = validarCpf(novoCpf);  // Se falhar, um erro será retornado
-            if (erroCpf) {
-                return res.status(400).json({ message: erroCpf });  // Retorna a mensagem de erro da validação
+        // Se houver chaves não válidas no corpo
+        for (let chave of chavesRecebidas) {
+            if (!chavesValidas.includes(chave)) {
+                return res.status(400).json({ message: `Chave '${chave}' errada ou ausente.` });
             }
         }
 
@@ -226,27 +207,49 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
         // Variável para armazenar as mensagens de sucesso
         let mensagensAlteradas = [];
 
-        // Atualizar CPF se necessário
-        if (novoCpf && vendedor.cpf !== novoCpf) {
-            // Verificar se o novo CPF já existe no banco
-            await verificarCpfExistente(Vendedor, novoCpf);  
-            vendedor.cpf = novoCpf;
-            mensagensAlteradas.push("CPF alterado com sucesso!");
+        // Validar nome, se fornecido
+        if (nome) {
+            const erroNome = validarNome(nome);  // Função que valida o nome
+            if (erroNome) {
+                return res.status(400).json({ message: erroNome });
+            }
+
+            const nomeMinimoError = validarNomeMinimo(nome);  // Validação do nome mínimo
+            if (nomeMinimoError) {
+                return res.status(400).json({ message: nomeMinimoError });
+            }
+
+            // Atualizar nome se necessário
+            if (vendedor.nome !== nome) {
+                vendedor.nome = nome;
+                mensagensAlteradas.push("Nome alterado com sucesso!");
+            }
         }
 
-        // Atualizar nome se necessário
-        if (nome && vendedor.nome !== nome) {
-            vendedor.nome = nome;
-            mensagensAlteradas.push("Nome alterado com sucesso!");
+        // Validar CPF, se fornecido
+        if (novoCpf) {
+            const erroCpf = validarCpf(novoCpf);  // Função que valida o CPF
+            if (erroCpf) {
+                return res.status(400).json({ message: erroCpf });
+            }
+
+            // Verificar se o novo CPF já existe no banco
+            if (vendedor.cpf !== novoCpf) {
+                await verificarCpfExistente(Vendedor, novoCpf);
+                vendedor.cpf = novoCpf;
+                mensagensAlteradas.push("CPF alterado com sucesso!");
+            }
         }
 
         // Atualizar endereço se necessário
-        if (endereco && vendedor.endereco !== endereco) {
+        if (endereco) {
             if (endereco.trim() === '') {
                 return res.status(400).json({ message: 'Endereço não pode ser vazio' });
             }
-            vendedor.endereco = endereco;
-            mensagensAlteradas.push("Endereço alterado com sucesso!");
+            if (vendedor.endereco !== endereco) {
+                vendedor.endereco = endereco;
+                mensagensAlteradas.push("Endereço alterado com sucesso!");
+            }
         }
 
         // Se nenhum campo foi alterado
@@ -254,7 +257,7 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
             return res.status(400).json({ message: 'Nenhuma alteração realizada.' });
         }
 
-        // Salvar as alterações
+        // Salvar as alterações no banco de dados
         await vendedor.save();
 
         // Se os campos foram alterados, cria a mensagem combinada
@@ -277,8 +280,6 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
         res.status(400).json({ message: error.message || 'Erro ao atualizar vendedor', error });
     }
 };
-
-
 
 // Função para deletar um vendedor pelo ID
 exports.deletarVendedorPorId = async (req, res) => {
