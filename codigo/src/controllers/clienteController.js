@@ -14,10 +14,17 @@ exports.criarCliente = async (req, res) => {
     try {
         const { nome, cpf, endereco } = req.body;
 
-        // Validação de campos obrigatórios (nome, cpf e endereco)
-        const camposObrigatoriosError = validarCamposObrigatorios(nome, cpf, endereco);
-        if (camposObrigatoriosError) {
-            return res.status(400).json({ message: camposObrigatoriosError });
+        // Verificar se as chaves esperadas existem no corpo da requisição e se não estão vazias
+        if (!req.body.hasOwnProperty('nome') || !nome) {
+            return res.status(400).json({ message: "Chave 'nome' errada ou ausente." });
+        }
+
+        if (!req.body.hasOwnProperty('cpf') || !cpf) {
+            return res.status(400).json({ message: "Chave 'cpf' errada ou ausente." });
+        }
+
+        if (!req.body.hasOwnProperty('endereco') || !endereco) {
+            return res.status(400).json({ message: "Chave 'endereco' errada ou ausente." });
         }
 
         // Validação do nome (apenas letras e espaços)

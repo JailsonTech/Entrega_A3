@@ -14,24 +14,33 @@ exports.criarVendedor = async (req, res) => {
     try {
         const { nome, cpf, endereco } = req.body;
 
-        // Verificar se todos os campos obrigatórios foram fornecidos (nome e cpf)
-        if (!nome || !cpf || !endereco) {
-            return res.status(400).json({ message: 'Nome, CPF e Endereço são obrigatórios' });
+        // Verificar se as chaves esperadas existem no corpo da requisição e se não estão vazias
+        if (!req.body.hasOwnProperty('nome') || !nome) {
+            return res.status(400).json({ message: "Chave 'nome' errada ou ausente." });
         }
 
-        // Validação do nome (apenas letras e espaços)
-        if (!validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
+        if (!req.body.hasOwnProperty('cpf') || !cpf) {
+            return res.status(400).json({ message: "Chave 'cpf' errada ou ausente." });
         }
 
-        // Validação do CPF (formato correto)
-        validarCpf(cpf); // Se o CPF for inválido, a função irá lançar um erro
+        if (!req.body.hasOwnProperty('endereco') || !endereco) {
+            return res.status(400).json({ message: "Chave 'endereco' errada ou ausente." });
+        }
+
+         // Validação do nome (apenas letras e espaços)
+         const erroNome = validarNome(nome);
+         if (erroNome) {
+             return res.status(400).json({ message: erroNome });
+         }
+ 
+         // Validação do CPF (formato correto)
+         const erroCpf = validarCpf(cpf);
+         if (erroCpf) {
+             return res.status(400).json({ message: erroCpf });
+         }
 
         // Verificar se o CPF já existe no banco
         await verificarCpfExistente(Vendedor, cpf);  // Se já existir, erro será lançado
-
-        // Validação do nome (apenas letras e espaços)
-        validarNome(nome);  // Se falhar, um erro será lançado
 
         // Validação do nome com mínimo de 2 caracteres
         const nomeMinimoError = validarNomeMinimo(nome);
@@ -151,8 +160,14 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
 
         // Verificar se pelo menos um dos campos foi enviado para atualizar
         if (!nome && !novoCpf && !endereco) {
-            return res.status(400).json({ message: 'Nome, CPF ou Endereço são obrigatórios para atualização' });
+            return res.status(400).json({ message: 'Chaves Nome, CPF ou Endereço errado ou ausente' });
         }
+
+         // Validação do nome (apenas letras e espaços)
+         const erroNome = validarNome(nome);
+         if (erroNome) {
+             return res.status(400).json({ message: erroNome });
+         }
 
         // Validar nome, se fornecido
         if (nome) {
@@ -207,7 +222,7 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
 
         // Se nenhum campo foi alterado
         if (mensagensAlteradas.length === 0) {
-            return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
+            return res.status(400).json({ message: 'Nenhuma alteração realizada.' });
         }
 
         // Salvar as alterações

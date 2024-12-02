@@ -40,6 +40,14 @@ const validarNome = (nome) => {
     return null;
 };
 
+// Função para validar se o nome tem pelo menos 2 caracteres
+const validarNomeMinimo = (nome) => {
+    if (nome && nome.length < 3) {
+        return 'Nome muito curto. Deve ter pelo menos 2 caracteres.';
+    }
+    return null;
+};
+
 // Função para validar campos obrigatórios (nome, cpf, e endereco)
 const validarCamposObrigatorios = (nome, cpf, endereco) => {
     // Verifica se algum campo foi enviado e se ele é válido
@@ -81,14 +89,6 @@ const validarCamposObrigatoriosPut = (nome, cpf, endereco) => {
     }
 
     // Se tudo estiver OK
-    return null;
-};
-
-// Função para validar se o nome tem pelo menos 2 caracteres
-const validarNomeMinimo = (nome) => {
-    if (nome && nome.length < 2) {
-        return 'Nome muito curto. Deve ter pelo menos 2 caracteres.';
-    }
     return null;
 };
 
