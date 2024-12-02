@@ -66,15 +66,22 @@ exports.criarVendedor = async (req, res) => {
         res.status(400).json({ message: error.message }); // Retorna a mensagem de erro gerada nas validações
     }
 };
+
 // Função para atualizar um vendedor pelo ID
 exports.atualizarVendedorPorId = async (req, res) => {
     try {
         const { id } = req.params;  // ID do vendedor vindo da URL
         const { nome, cpf: novoCpf, endereco } = req.body;  // Dados a serem atualizados
 
-        // Verificar se pelo menos um dos campos foi enviado para atualização
-        if (!nome && !novoCpf && !endereco) {
-            return res.status(400).json({ message: 'Chaves Nome, CPF ou Endereço errados ou ausentes' });
+        // Verificar se o corpo da requisição contém chaves erradas (diferentes de "nome", "cpf", "endereco")
+        const chavesValidas = ['nome', 'cpf', 'endereco'];
+        const chavesRecebidas = Object.keys(req.body);
+
+        // Se houver chaves não válidas no corpo
+        for (let chave of chavesRecebidas) {
+            if (!chavesValidas.includes(chave)) {
+                return res.status(400).json({ message: `Chave '${chave}' errada ou ausente.` });
+            }
         }
 
         // Validar nome, se fornecido
@@ -96,10 +103,18 @@ exports.atualizarVendedorPorId = async (req, res) => {
             if (erroCpf) {
                 return res.status(400).json({ message: erroCpf });
             }
+
+            // Verificar se o CPF já está cadastrado (caso o vendedor esteja alterando o CPF)
+            if (novoCpf !== req.body.cpf) {
+                const vendedorExistente = await Vendedor.findOne({ where: { cpf: novoCpf } });
+                if (vendedorExistente) {
+                    return res.status(400).json({ message: 'Já existe um vendedor com esse CPF.' });
+                }
+            }
         }
 
         // Verificar se o vendedor com o ID fornecido existe
-        const vendedor = await Vendedor.findByPk(id);  // Buscando o vendedor pelo ID
+        const vendedor = await Vendedor.findByPk(id);
         if (!vendedor) {
             return res.status(404).json({ message: `Vendedor com o ID ${id} não encontrado.` });
         }

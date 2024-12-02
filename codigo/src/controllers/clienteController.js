@@ -79,82 +79,112 @@ exports.criarCliente = async (req, res) => {
 // Função para atualizar um cliente pelo ID
 exports.atualizarClientePorId = async (req, res) => {
     try {
-        const { id } = req.params; // Obtém o ID do cliente da URL
-        const { nome, cpf, endereco } = req.body; // Obtém os dados para atualização
+        const { id } = req.params;  // ID do cliente vindo da URL
+        const { nome, cpf: novoCpf, endereco } = req.body;  // Dados a serem atualizados
 
-        // Verificar se pelo menos um dos campos foi enviado para atualizar
-        if (!nome && !cpf && !endereco) {
-            return res.status(400).json({ message: 'Chave incorreta deve ser um destes "nome", "cpf", "endereco"'});
+        // Verificar se o corpo da requisição contém chaves erradas (diferentes de "nome", "cpf", "endereco")
+        const chavesValidas = ['nome', 'cpf', 'endereco'];
+        const chavesRecebidas = Object.keys(req.body);
+        
+        // Se houver chaves não válidas no corpo
+        for (let chave of chavesRecebidas) {
+            if (!chavesValidas.includes(chave)) {
+                return res.status(400).json({ message: `Chave '${chave}' errada ou ausente.` });
+            }
         }
 
-        // Validar nome
-        if (nome && !validarNome(nome)) {
-            return res.status(400).json({ message: 'Nome inválido. Apenas letras e espaços são permitidos.' });
+        // Validar nome, se fornecido
+        if (nome) {
+            const erroNome = validarNome(nome);  // Função que valida o nome
+            if (erroNome) {
+                return res.status(400).json({ message: erroNome });
+            }
+
+            const nomeMinimoError = validarNomeMinimo(nome);  // Validação do nome mínimo
+            if (nomeMinimoError) {
+                return res.status(400).json({ message: nomeMinimoError });
+            }
         }
 
-        // Verificar o nome mínimo (se for fornecido)
-        const nomeMinimoError = validarNomeMinimo(nome);
-        if (nomeMinimoError) {
-            return res.status(400).json({ message: nomeMinimoError });
+        // Validar CPF, se fornecido
+        if (novoCpf) {
+            const erroCpf = validarCpf(novoCpf);  // Função que valida o CPF
+            if (erroCpf) {
+                return res.status(400).json({ message: erroCpf });
+            }
+
+            // Verificar se o CPF já está cadastrado (caso o cliente esteja alterando o CPF)
+            if (novoCpf !== req.body.cpf) {
+                const clienteExistente = await Cliente.findOne({ where: { cpf: novoCpf } });
+                if (clienteExistente) {
+                    return res.status(400).json({ message: 'Já existe um cliente com esse CPF.' });
+                }
+            }
         }
 
-        // Validar CPF
-        if (cpf && !validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
-        }
-
-        // Buscar o cliente pelo ID
+        // Verificar se o cliente com o ID fornecido existe
         const cliente = await Cliente.findByPk(id);
         if (!cliente) {
-            return res.status(404).json({ message: 'Cliente não encontrado' });
+            return res.status(404).json({ message: `Cliente com o ID ${id} não encontrado.` });
         }
 
-        let mensagemSucesso = "";
+        // Variável para armazenar as mensagens de sucesso
+        let mensagensAlteradas = [];
 
         // Atualizar CPF se necessário
-        if (cpf && cliente.cpf !== cpf) {
-            // Verificar se o CPF já existe
-            const cpfExistente = await verificarCpfExistente(Cliente, cpf);
-            if (cpfExistente) {
-                return res.status(400).json({ message: 'Já existe um cliente com esse CPF.' });
-            }
-            cliente.cpf = cpf;
-            mensagemSucesso = "CPF alterado com sucesso!";
+        if (novoCpf && cliente.cpf !== novoCpf) {
+            cliente.cpf = novoCpf;
+            mensagensAlteradas.push("CPF alterado com sucesso!");
         }
 
         // Atualizar nome se necessário
         if (nome && cliente.nome !== nome) {
             cliente.nome = nome;
-            if (!mensagemSucesso) {
-                mensagemSucesso = "Nome alterado com sucesso!";
-            }
+            mensagensAlteradas.push("Nome alterado com sucesso!");
         }
 
         // Atualizar endereço se necessário
         if (endereco && cliente.endereco !== endereco) {
-            cliente.endereco = endereco;
-            if (!mensagemSucesso) {
-                mensagemSucesso = "Endereço alterado com sucesso!";
+            if (endereco.trim() === '') {
+                return res.status(400).json({ message: 'Endereço não pode ser vazio' });
             }
+            cliente.endereco = endereco;
+            mensagensAlteradas.push("Endereço alterado com sucesso!");
         }
 
         // Se nenhum campo foi alterado
-        if (!mensagemSucesso) {
-            return res.status(400).json({ message: 'Nenhuma alteração detectada.' });
+        if (mensagensAlteradas.length === 0) {
+            return res.status(400).json({ message: 'Nenhuma alteração realizada.' });
         }
 
-        // Salvar as alterações
+        // Salvar as alterações no banco de dados
         await cliente.save();
+
+        // Se os campos foram alterados, cria a mensagem combinada
+        const mensagemSucesso = mensagensAlteradas.join(" "); // Junta todas as mensagens
 
         // Retornar a resposta com a mensagem de sucesso e os dados atualizados
         res.status(200).json({
             message: mensagemSucesso,
-            cliente: cliente
+            cliente: {
+                id: cliente.id,
+                nome: cliente.nome,
+                cpf: cliente.cpf,
+                endereco: cliente.endereco // Incluir o endereço atualizado
+            }
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao atualizar cliente', error: error.message });
+        console.error("Erro ao atualizar cliente:", error);
+
+        // Caso o erro seja um objeto e tenha uma mensagem
+        const mensagemErro = error.message || 'Erro desconhecido ao atualizar cliente';
+
+        // Retorne a resposta com a mensagem de erro detalhada
+        return res.status(500).json({
+            message: mensagemErro,
+            error: error
+        });
     }
 };
 
