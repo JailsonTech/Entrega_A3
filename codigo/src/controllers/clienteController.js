@@ -80,9 +80,15 @@ exports.criarCliente = async (req, res) => {
 exports.atualizarClientePorId = async (req, res) => {
     try {
         const { id } = req.params;  // ID do cliente vindo da URL
-        const { nome, cpf: novoCpf, endereco } = req.body;  // Dados a serem atualizados
+        const { nome, cpf: novoCpf, endereco } = req.body;  // Dados a serem atualizados  
 
-        // Verificar se o corpo da requisição contém chaves erradas (diferentes de "nome", "cpf", "endereco")
+        // Validar o ID
+        const erroId = validarId(id);  // Função que valida o ID
+        if (erroId) {
+            return res.status(400).json({ message: erroId });
+        }
+
+        // Verificar se o corpo da requisição contém chaves erradas 
         const chavesValidas = ['nome', 'cpf', 'endereco'];
         const chavesRecebidas = Object.keys(req.body);
         
@@ -293,13 +299,23 @@ exports.atualizarClientePorCpf = async (req, res) => {
 exports.deletarClientePorId = async (req, res) => {
     try {
         const { id } = req.params;  // Obtém o ID do cliente da URL
-        const cliente = await Cliente.findByPk(id);
 
-        if (!cliente) {
-            return res.status(404).json({ message: 'Cliente não encontrado' });
+        // Validar o ID
+        const erroId = validarId(id);  // Função que valida o ID
+        if (erroId) {
+            return res.status(400).json({ message: erroId });
         }
 
-        const nomeCliente = cliente.nome; // Obtém o nome do cliente
+        // Buscar o cliente pelo ID
+        const cliente = await Cliente.findByPk(id);
+
+        // Se o cliente não for encontrado
+        if (!cliente) {
+            return res.status(404).json({ message: 'Cliente não encontrado com esse ID.' });
+        }
+
+        // Armazenar o nome do cliente
+        const nomeCliente = cliente.nome;
 
         // Excluir o cliente
         await cliente.destroy();
@@ -308,6 +324,16 @@ exports.deletarClientePorId = async (req, res) => {
         res.status(200).json({ message: `Cliente ${nomeCliente} excluído com sucesso` });
     } catch (error) {
         console.error(error);
+
+        // Verificar o tipo de erro e fornecer mensagens mais detalhadas
+        if (error instanceof Sequelize.DatabaseError) {
+            return res.status(500).json({
+                message: 'Erro no banco de dados',
+                error: error.message,
+                details: error.parent.sql || error.original.sql
+            });
+        }
+
         res.status(500).json({ message: 'Erro ao deletar cliente', error });
     }
 };
@@ -315,11 +341,12 @@ exports.deletarClientePorId = async (req, res) => {
 // Função para deletar um cliente pelo CPF
 exports.deletarClientePorCpf = async (req, res) => {
     try {
-        const { cpf } = req.params;  // Obtém o CPF do cliente da URL
+        const { cpf } = req.params;  // Obtém o CPF da URL
 
-        // Validação do CPF (formato 111.222.333-44)
-        if (!validarCpf(cpf)) {
-            return res.status(400).json({ message: 'CPF inválido. O formato deve ser 111.222.333-44.' });
+        // Validar o CPF (formato)
+        const erroCpf = validarCpf(cpf);  // Se falhar, um erro será retornado
+        if (erroCpf) {
+            return res.status(400).json({ message: erroCpf });  // Retorna a mensagem de erro da validação
         }
 
         // Buscar o cliente pelo CPF
@@ -329,12 +356,13 @@ exports.deletarClientePorCpf = async (req, res) => {
             return res.status(404).json({ message: 'Cliente não encontrado com esse CPF.' });
         }
 
-        const nomeCliente = cliente.nome; // Obtém o nome do cliente
+        // Nome do cliente a ser excluído
+        const nomeCliente = cliente.nome;
 
         // Excluir o cliente
         await cliente.destroy();
 
-        // Retornar a resposta de sucesso com o nome do cliente
+        // Retornar a resposta de sucesso com o nome do cliente excluído
         res.status(200).json({ message: `Cliente ${nomeCliente} excluído com sucesso` });
     } catch (error) {
         console.error(error);

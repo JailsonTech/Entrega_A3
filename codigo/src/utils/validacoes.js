@@ -210,12 +210,14 @@ const verificarProdutoExistente = async (Produto, nome) => {
     return produtoExistente;
 };
 
-// Função de validação de ID
+// Função para validar o ID
 const validarId = (id) => {
-    // Garantir que o id seja um número inteiro positivo
-    const idNumerico = parseInt(id, 10);  // Convertendo para número inteiro
-    if (!Number.isInteger(idNumerico) || idNumerico <= 0) {
-        return 'ID inválido. O ID deve ser um número inteiro positivo.';
+    // Verificar se o ID é um número inteiro positivo
+    const idNumerico = parseInt(id, 10);
+
+    // Verificar se a conversão resultou em um número válido e se o ID não contém caracteres não numéricos
+    if (!Number.isInteger(idNumerico) || idNumerico <= 0 || !/^\d+$/.test(id)) {
+        return 'ID inválido. O ID deve ser um número inteiro positivo';
     }
     return null;
 };

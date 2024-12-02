@@ -73,7 +73,13 @@ exports.atualizarVendedorPorId = async (req, res) => {
         const { id } = req.params;  // ID do vendedor vindo da URL
         const { nome, cpf: novoCpf, endereco } = req.body;  // Dados a serem atualizados
 
-        // Verificar se o corpo da requisição contém chaves erradas (diferentes de "nome", "cpf", "endereco")
+        // Validar o ID
+        const erroId = validarId(id);  // Função que valida o ID
+        if (erroId) {
+            return res.status(400).json({ message: erroId });
+        }
+
+        // Verificar se o corpo da requisição contém chaves erradas 
         const chavesValidas = ['nome', 'cpf', 'endereco'];
         const chavesRecebidas = Object.keys(req.body);
 
@@ -285,17 +291,41 @@ exports.atualizarVendedorPorCpf = async (req, res) => {
 exports.deletarVendedorPorId = async (req, res) => {
     try {
         const { id } = req.params;
-        const vendedor = await Vendedor.findByPk(id);
 
-        if (!vendedor) {
-            return res.status(404).json({ message: 'Vendedor não encontrado' });
+        // Validar o ID
+        const erroId = validarId(id);  // Função que valida o ID
+        if (erroId) {
+            return res.status(400).json({ message: erroId });
         }
 
+        // Buscar o vendedor pelo ID
+        const vendedor = await Vendedor.findByPk(id);
+
+        // Se o vendedor não for encontrado
+        if (!vendedor) {
+            return res.status(404).json({ message: 'Vendedor não encontrado com esse ID.' });
+        }
+
+        // Armazenar o nome do vendedor
+        const nomeVendedor = vendedor.nome;
+
+        // Excluir o vendedor
         await vendedor.destroy();
 
-        res.status(200).json({ message: 'Vendedor excluído com sucesso' });
+        // Retornar resposta de sucesso com o nome do vendedor
+        res.status(200).json({ message: `Vendedor ${nomeVendedor} excluído com sucesso` });
     } catch (error) {
         console.error(error);
+
+        // Verificar o tipo de erro e fornecer mensagens mais detalhadas
+        if (error instanceof Sequelize.DatabaseError) {
+            return res.status(500).json({
+                message: 'Erro no banco de dados',
+                error: error.message,
+                details: error.parent.sql || error.original.sql
+            });
+        }
+
         res.status(500).json({ message: 'Erro ao deletar vendedor', error });
     }
 };
@@ -303,26 +333,29 @@ exports.deletarVendedorPorId = async (req, res) => {
 // Função para deletar um vendedor pelo CPF
 exports.deletarVendedorPorCpf = async (req, res) => {
     try {
-        const { cpf } = req.params;  // Obtém o CPF da URL
-
-        // Buscar o vendedor pelo CPF
-        const vendedor = await Vendedor.findOne({ where: { cpf } });
+        const { cpf } = req.params;  // Obtém o CPF da URL        
 
         // Validação do CPF (formato)
         const erroCpf = validarCpf(cpf);  // Se falhar, um erro será retornado
         if (erroCpf) {
             return res.status(400).json({ message: erroCpf });  // Retorna a mensagem de erro da validação
-        }
+        }        
+
+        // Buscar o vendedor pelo CPF
+        const vendedor = await Vendedor.findOne({ where: { cpf } });
 
         if (!vendedor) {
             return res.status(404).json({ message: 'Vendedor não encontrado com esse CPF.' });
         }
 
+        // Nome do vendedor a ser excluído
+        const nomeVendedor = vendedor.nome;
+
         // Excluir o vendedor
         await vendedor.destroy();
 
-        // Retornar a resposta de sucesso
-        res.status(200).json({ message: 'Vendedor excluído com sucesso' });
+        // Retornar a resposta de sucesso com o nome do vendedor excluído
+        res.status(200).json({ message: `Vendedor ${nomeVendedor} excluído com sucesso` });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao excluir vendedor', error });
