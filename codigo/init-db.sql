@@ -115,3 +115,11 @@ INSERT INTO vendas (clienteId, vendedorId, produtoId, quantidade, total, data_ve
 (2, 2, 2, 5, 20.00, '2024-11-02'),
 (3, 1, 3, 8, 35.92, '2024-11-03');
 
+-- Criar tabela relatorios
+CREATE TABLE relatorios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    tipo VARCHAR(50) NOT NULL, -- Ex: consumo-medio, por_cliente, mais_vendidos
+    dados JSONB NOT NULL, 
+    data_relatorio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
