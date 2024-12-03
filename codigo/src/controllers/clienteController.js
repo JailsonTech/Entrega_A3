@@ -1,3 +1,5 @@
+//src/controllers/clienteController.js
+
 const { Sequelize, Op } = require('sequelize'); // Importando Sequelize para usar os operadores
 const Cliente = require('../models/clientes'); // Importando o modelo Cliente
 const { 

@@ -1,4 +1,4 @@
-//routes/produtoRoutes.js
+//src/routes/produtoRoutes.js
 
 const express = require('express');
 const produtoController = require('../controllers/produtoController');
@@ -36,5 +36,7 @@ router.delete('/nome/:nome', produtoController.deletarProdutoPorNome);
 
 // Deletar todos os produtos
 router.delete('/todos', produtoController.deletarTodosProdutos);
+
+router.get('/:nome/estoque', produtoController.obterEstoquePorNome);
 
 module.exports = router;

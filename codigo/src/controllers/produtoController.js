@@ -1,3 +1,5 @@
+//src/controllers/produtoController.js
+
 const { Op } = require('sequelize');
 const Produtos = require('../models/produtos'); 
 
@@ -30,9 +32,9 @@ exports.criarProduto = async (req, res) => {
         }
 
         // Validando o nome do produto (apenas letras e espaços)
-        const erroNomeProduto = validarNomeProduto(nome);  // Função que valida o nome do produto
-        if (!erroNomeProduto) {
-            return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
+        const erroNomeProduto = validarNomeProduto(nome);  // Função que valida o nome
+        if (erroNomeProduto) {
+            return res.status(400).json({ message: erroNomeProduto });
         }
 
         // Verificar se o produto já existe no banco de dados
@@ -50,6 +52,8 @@ exports.criarProduto = async (req, res) => {
 
         // Validar o estoque
         const validacaoEstoque = validarEstoque(estoque);  // Função que valida o estoque
+
+        // Verificar se a validação falhou (valid: false)
         if (!validacaoEstoque.valid) {
             return res.status(400).json({ message: validacaoEstoque.message });
         }
@@ -112,6 +116,7 @@ exports.atualizarProdutoPorId = async (req, res) => {
 
         // Comparar e verificar alterações no nome
         if (nome && nome !== produto.nome) {
+            // Validando o nome do produto (apenas letras e espaços)
             const erroNomeProduto = validarNomeProduto(nome);  // Função que valida o nome
             if (erroNomeProduto) {
                 return res.status(400).json({ message: erroNomeProduto });
@@ -146,7 +151,7 @@ exports.atualizarProdutoPorId = async (req, res) => {
         // Se não houve alteração, retornar mensagem de nenhuma alteração
         if (nenhumaAlteracao) {
             return res.status(200).json({
-                message: 'Nenhuma alteração realizada. O produto já está com os dados informados.',
+                message: 'Nenhuma alteração realizada.',
                 produto,
             });
         }
@@ -182,19 +187,22 @@ exports.atualizarProdutoPorId = async (req, res) => {
     }
 };
 
-// Função para atualizar produto por nome
+/// Função para atualizar produto por nome
 exports.atualizarProdutoPorNome = async (req, res) => {
     try {
         const { nome } = req.params; // Nome do produto para localizar
         const { nome: novoNome, preco, estoque } = req.body; // Novos valores para o produto
 
-        // Validação de campos obrigatórios para update
-        const camposInvalidosPut = validarCamposObrigatoriosProdutoPut(novoNome, preco, estoque);
-        if (camposInvalidosPut) {
-            return res.status(400).json({ message: camposInvalidosPut });
+        // Validação das chaves para garantir que não há chaves inesperadas
+        const chavesValidas = ['nome', 'preco', 'estoque'];
+        const chavesRecebidas = Object.keys(req.body);
+        const chavesInvalidas = chavesRecebidas.filter(chave => !chavesValidas.includes(chave));
+
+        if (chavesInvalidas.length > 0) {
+            return res.status(400).json({ message: `Chave(s) inválida(s): ${chavesInvalidas.join(', ')}` });
         }
 
-       // Buscar o produto pelo nome
+        // Buscar o produto pelo nome
         const produto = await Produtos.findOne({ where: { nome } });
         if (!produto) {
             return res.status(404).json({ message: 'Produto não encontrado.' });
@@ -205,16 +213,17 @@ exports.atualizarProdutoPorNome = async (req, res) => {
         let nenhumaAlteracao = true; // Flag para verificar se houve alteração
 
         // Validar o novo nome do produto, se foi informado
-        if (novoNome && novoNome !== produto.nome) {
+        if (novoNome !== undefined && novoNome !== produto.nome) {
             // Verificar se já existe outro produto com o novo nome
             const produtoComMesmoNome = await Produtos.findOne({ where: { nome: novoNome } });
             if (produtoComMesmoNome) {
                 return res.status(400).json({ message: 'Produto com esse nome já existe.' });
             }
 
-            // Validar o formato do novo nome
-            if (!validarNomeProduto(novoNome)) {
-                return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
+            // Validando o nome do produto usando a função de validação externa
+            const erroNomeProduto = validarNomeProduto(novoNome);  // Função que valida o nome
+            if (erroNomeProduto) {
+                return res.status(400).json({ message: erroNomeProduto });
             }
 
             produto.nome = novoNome;
@@ -224,7 +233,7 @@ exports.atualizarProdutoPorNome = async (req, res) => {
 
         // Validar o preço, se foi informado
         if (preco !== undefined && preco !== produto.preco) {
-            const validacaoPreco = validarPreco(preco);
+            const validacaoPreco = validarPreco(preco);  // Função que valida o preço
             if (!validacaoPreco.valid) {
                 return res.status(400).json({ message: validacaoPreco.message });
             }
@@ -235,7 +244,7 @@ exports.atualizarProdutoPorNome = async (req, res) => {
 
         // Validar o estoque, se foi informado
         if (estoque !== undefined && estoque !== produto.estoque) {
-            const validacaoEstoque = validarEstoque(estoque);
+            const validacaoEstoque = validarEstoque(estoque);  // Função que valida o estoque
             if (!validacaoEstoque.valid) {
                 return res.status(400).json({ message: validacaoEstoque.message });
             }
@@ -247,7 +256,7 @@ exports.atualizarProdutoPorNome = async (req, res) => {
         // Se não houve alteração, retornar mensagem de nenhuma alteração
         if (nenhumaAlteracao) {
             return res.status(200).json({
-                message: 'Nenhuma atualização foi feita. Produto já está com os dados informados.',
+                message: 'Nenhuma atualização foi feita.',
                 produto,
             });
         }
@@ -299,9 +308,10 @@ exports.deletarProdutoPorNome = async (req, res) => {
     try {
         const { nome } = req.params;
 
-        // Validar o nome do produto antes de tentar deletá-lo
-        if (!validarNomeProduto(nome)) {
-            return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
+        // Validando o nome do produto (apenas letras e espaços)
+        const erroNomeProduto = validarNomeProduto(nome);  // Função que valida o nome
+        if (erroNomeProduto) {
+            return res.status(400).json({ message: erroNomeProduto });
         }
 
         // Buscando o produto pelo nome
@@ -361,9 +371,10 @@ exports.obterProdutoPorNome = async (req, res) => {
             return res.status(400).json({ message: 'Parâmetro "nome" é obrigatório.' });
         }
 
-        // Validando o nome do produto
-        if (!validarNomeProduto(nome)) {
-            return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
+        // Validando o nome do produto (apenas letras e espaços)
+        const erroNomeProduto = validarNomeProduto(nome);  // Função que valida o nome
+        if (erroNomeProduto) {
+            return res.status(400).json({ message: erroNomeProduto });
         }
 
         // Busca insensível a maiúsculas e minúsculas
@@ -407,5 +418,40 @@ exports.obterProdutoPorId = async (req, res) => {
     } catch (error) {
         console.error('Erro ao buscar produto por ID:', error); // Mensagem de erro mais detalhada
         res.status(500).json({ message: 'Erro ao buscar produto por ID.', error: error.message }); // Exibindo a mensagem de erro
+    }
+};
+
+// Função para obter o estoque de um produto por nome
+exports.obterEstoquePorNome = async (req, res) => {
+    try {
+        const { nome } = req.params; // Nome do produto
+
+        if (!nome) {
+            return res.status(400).json({ message: 'Parâmetro "nome" é obrigatório.' });
+        }
+
+        // Validando o nome do produto
+        if (!validarNomeProduto(nome)) {
+            return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
+        }
+
+        // Buscar o produto pelo nome
+        const produto = await Produtos.findOne({
+            where: { nome },
+            attributes: ['nome', 'estoque'] // Retorna apenas nome e estoque
+        });
+
+        if (!produto) {
+            return res.status(404).json({ message: 'Produto não encontrado.' });
+        }
+
+        // Retornar apenas o nome e o estoque do produto
+        res.status(200).json({
+            nome: produto.nome,
+            estoque: produto.estoque
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erro ao buscar estoque do produto.', error: error.message });
     }
 };

@@ -1,4 +1,4 @@
-//pedidoCompra/Routes.js
+//src/routes/pedidoCompraRoutes.js
 
 const express = require('express');
 const router = express.Router();

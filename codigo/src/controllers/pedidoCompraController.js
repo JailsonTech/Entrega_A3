@@ -1,4 +1,4 @@
-// pedidoCompraController.js
+//src/controllers/pedidoCompraController.js
 
 const {    
     validarId
@@ -8,17 +8,29 @@ const Produtos = require('../models/produtos'); // Importando o modelo de Produt
 
 // Função para receber um pedido de compra (aumentando o estoque)
 exports.receberPedidoCompra = async (req, res) => {
-    const { idProduto, quantidade } = req.body;
+    let { idProduto, quantidade } = req.body;
+
+    // Validação das chaves obrigatórias
+    if (!req.body.hasOwnProperty('idProduto') || idProduto === undefined) {
+        return res.status(400).json({ message: "Chave 'idProduto' errada ou ausente." });
+    }
+
+    if (!req.body.hasOwnProperty('quantidade') || quantidade === undefined) {
+        return res.status(400).json({ message: "Chave 'quantidade' errada ou ausente." });
+    }
+
+    // Garantir que a quantidade seja um número, mesmo que seja passada como string
+    quantidade = Number(quantidade); // Converte a quantidade para número
+
+    // Verificar se a quantidade é um número válido e positivo
+    if (isNaN(quantidade) || quantidade <= 0) {
+        return res.status(400).json({ message: 'Quantidade deve ser um número positivo e maior que zero.' });
+    }
 
     // Validação do ID do produto
     const idValido = validarId(idProduto);
     if (idValido) {
         return res.status(400).json({ message: idValido }); // Envia a mensagem de erro de validação
-    }
-
-    // Validação da quantidade
-    if (isNaN(quantidade) || quantidade <= 0) {
-        return res.status(400).json({ message: 'Quantidade inválida.' });
     }
 
     try {
@@ -41,17 +53,29 @@ exports.receberPedidoCompra = async (req, res) => {
 
 // Função para cancelar um pedido de compra (diminuindo o estoque)
 exports.cancelarPedidoCompra = async (req, res) => {
-    const { idProduto, quantidade } = req.body;
+    let { idProduto, quantidade } = req.body;
+
+    // Validação das chaves obrigatórias
+    if (!req.body.hasOwnProperty('idProduto') || idProduto === undefined) {
+        return res.status(400).json({ message: "Chave 'idProduto' errada ou ausente." });
+    }
+
+    if (!req.body.hasOwnProperty('quantidade') || quantidade === undefined) {
+        return res.status(400).json({ message: "Chave 'quantidade' errada ou ausente." });
+    }
+
+    // Garantir que a quantidade seja um número, mesmo que seja passada como string
+    quantidade = Number(quantidade); // Converte a quantidade para número
+
+    // Verificar se a quantidade é um número válido e positivo
+    if (isNaN(quantidade) || quantidade <= 0) {
+        return res.status(400).json({ message: 'Quantidade deve ser um número positivo e maior que zero.' });
+    }
 
     // Validação do ID do produto
     const idValido = validarId(idProduto);
     if (idValido) {
         return res.status(400).json({ message: idValido }); // Envia a mensagem de erro de validação
-    }
-
-    // Validação da quantidade
-    if (isNaN(quantidade) || quantidade <= 0) {
-        return res.status(400).json({ message: 'Quantidade inválida.' });
     }
 
     try {
@@ -63,7 +87,7 @@ exports.cancelarPedidoCompra = async (req, res) => {
 
         // Verificar se a quantidade a ser cancelada não é maior que o estoque
         if (produto.estoque < quantidade) {
-            return res.status(400).json({ message: 'O valor de cancelamento é maior do que o estoque.' });
+            return res.status(400).json({ message: `ERRO! Valor maior que estoque. <- ESTOQUE = ${produto.estoque} ->` });
         }
 
         // Atualizando o estoque após cancelamento

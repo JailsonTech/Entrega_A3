@@ -94,12 +94,17 @@ const validarCamposObrigatoriosPut = (nome, cpf, endereco) => {
 
 // Função para validar o nome do produto (apenas letras e espaços)
 const validarNomeProduto = (nome) => {
+    // Garantir que o nome seja uma string
+    if (typeof nome !== 'string') {
+        return 'Nome do produto deve ser uma string.';
+    }
+
     // A regex permite apenas letras (maiusculas e minúsculas), acentuadas e espaços
     const nomeProdutoRegex = /^[a-zA-ZÀ-ÿ\s]+$/;
 
     // Se o nome não for válido, retorna uma mensagem de erro
     if (!nomeProdutoRegex.test(nome)) {
-        return 'Nome de produto inválido. Apenas letras e espaços são permitidos.';
+        return 'Nome de produto inválido. Apenas letras e espaços são permitidos, sem números.';
     }
 
     // Se o nome for válido, retorna null
@@ -110,7 +115,7 @@ const validarNomeProduto = (nome) => {
 const validarPreco = (preco) => {
     // Garantir que o preco seja um número real (não uma string)
     if (typeof preco !== 'number' || isNaN(preco)) {
-        return { valid: false, message: `O valor '${preco}' deve ser um número válido e sem aspas` };
+        return { valid: false, message: `Erro no valor de preco -> '${preco}' <- Deve ser um NÚMERO válido e sem aspas` };
     }
     
     // Garantir que o preço não contenha caracteres inválidos (verifica se o valor é um número)
@@ -126,6 +131,27 @@ const validarPreco = (preco) => {
 
     // Se o preço for válido, retorna o preço numérico
     return { valid: true, precoNumerico: preco };
+};
+
+
+const validarEstoque = (estoque) => {
+    // Garantir que o estoque seja um número real (não uma string)
+    if (typeof estoque !== 'number' || isNaN(estoque)) {
+        return { valid: false, message: `O valor '${estoque}' deve ser um número válido e sem aspas` };
+    }
+
+    // O estoque deve ser um número inteiro não negativo, permitindo 0
+    if (!Number.isInteger(estoque)) {
+        return { valid: false, message: `O valor '${estoque}' deve ser um número inteiro, não negativo.` };
+    }
+
+    // O estoque pode ser 0, desde que seja um número inteiro não negativo
+    if (estoque < 0) {
+        return { valid: false, message: `O valor '${estoque}' é inválido. Não pode ser negativo.` };
+    }
+
+    // Se tudo estiver correto, retornamos como válido
+    return { valid: true };
 };
 
 // Exemplo de como salvar no DB
@@ -152,26 +178,6 @@ const salvarProdutoNoDb = async (Produto, nome, preco, estoque) => {
         console.error(error);
         throw new Error("Erro ao salvar o produto.");
     }
-};
-
-const validarEstoque = (estoque) => {
-    // Garantir que o estoque seja um número real (não uma string)
-    if (typeof estoque !== 'number' || isNaN(estoque)) {
-        return { valid: false, message: `O valor '${estoque}' deve ser um número válido e sem aspas` };
-    }
-
-    // O estoque deve ser um número inteiro não negativo, permitindo 0
-    if (!Number.isInteger(estoque)) {
-        return { valid: false, message: `O valor '${estoque}' deve ser um número inteiro, não negativo.` };
-    }
-
-    // O estoque pode ser 0, desde que seja um número inteiro não negativo
-    if (estoque < 0) {
-        return { valid: false, message: `O valor '${estoque}' é inválido. Não pode ser negativo.` };
-    }
-
-    // Se tudo estiver correto, retornamos como válido
-    return { valid: true };
 };
 
 // Função para validar se todos os campos obrigatórios (nome, preco e estoque) foram informados

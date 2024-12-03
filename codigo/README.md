@@ -62,7 +62,7 @@ Atividade para avaliação Facs
       - (por Id)..... http://localhost:3000/vendedores/id/1
       - (todos)...... http://localhost:3000/vendedores/todos
 
-3. TABELA PRODUTOS.......................................................
+3. CRUD PRODUTOS.......................................................
     * GET 
       - (tudo)....... http://localhost:3000/produtos
       - (por nome)... http://localhost:3000/produtos/nome/farinha 
@@ -86,7 +86,7 @@ Atividade para avaliação Facs
       - (por Id)...... http://localhost:3000/produtos/id/1
       - (todos)....... http://localhost:3000/produtos/todos
 
-4. RECEBER/CANCELAR PEDIDO COMPRA..................................
+4. CRUD ESTOQUE (COMPRAR E CANCELAR)..................................
    * Receber pedido: 
      POST http://localhost:3000/pedidos/comprar
         {
