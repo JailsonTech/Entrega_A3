@@ -1,10 +1,7 @@
 //src/controllers/pedidoCompraController.js
 
-const {    
-    validarId
-} = require('../utils/validacoes'); // Importando a função de validação
-
 const Produtos = require('../models/produtos'); // Importando o modelo de Produto
+const {validarId} = require('../utils/validacoes'); // Importando a função de validação
 
 // Função para receber um pedido de compra (aumentando o estoque)
 exports.receberPedidoCompra = async (req, res) => {
@@ -87,7 +84,7 @@ exports.cancelarPedidoCompra = async (req, res) => {
 
         // Verificar se a quantidade a ser cancelada não é maior que o estoque
         if (produto.estoque < quantidade) {
-            return res.status(400).json({ message: `ERRO! Valor maior que estoque. <- ESTOQUE = ${produto.estoque} ->` });
+            return res.status(400).json({ message: `ERRO! Quantidade pedida para cancelar maior que o Estoque (Estoque = ${produto.estoque}) ` });
         }
 
         // Atualizando o estoque após cancelamento

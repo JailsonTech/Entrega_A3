@@ -85,8 +85,10 @@ Atividade para avaliação Facs
       - (por nome).... http://localhost:3000/produtos/nome/farinha
       - (por Id)...... http://localhost:3000/produtos/id/1
       - (todos)....... http://localhost:3000/produtos/todos
+      
 
 4. CRUD ESTOQUE (COMPRAR E CANCELAR)..................................
+
    * Receber pedido: 
      POST http://localhost:3000/pedidos/comprar
         {
@@ -106,11 +108,14 @@ Atividade para avaliação Facs
    POST http://localhost:3000/vendas
 
       {
-        "clienteNome": "Carlos",
-        "vendedorNome": "Suzana",
-        "item": "arroz",
-        "quantidade": 3 
+          "clienteNome": "João Silva",
+          "vendedorNome": "Maria Souza",
+          "nome": "Feijão",
+          "quantidade": 3
       }
+
+6. VISUALIZAR PRODUTO ESPECÍFICO E O ESTOQUE....................................
+   GET http://localhost:3000/produtos/feijão/estoque
 
 
 

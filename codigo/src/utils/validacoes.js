@@ -100,10 +100,10 @@ const validarNomeProduto = (nome) => {
     }
 
     // A regex permite apenas letras (maiusculas e minúsculas), acentuadas e espaços
-    const nomeProdutoRegex = /^[a-zA-ZÀ-ÿ\s]+$/;
+    const regex = /^[a-zA-Zà-úÀ-ÚçÇãõÃõ\s]+$/;
 
     // Se o nome não for válido, retorna uma mensagem de erro
-    if (!nomeProdutoRegex.test(nome)) {
+    if (!regex.test(nome)) {
         return 'Nome de produto inválido. Apenas letras e espaços são permitidos, sem números.';
     }
 

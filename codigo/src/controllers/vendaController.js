@@ -58,7 +58,7 @@ const criarVenda = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Erro ao criar venda:', error.message);
+        console.error('Erro ao criar venda:', error);
         return res.status(500).json({ mensagem: 'Erro ao criar venda.' });
     }
 };

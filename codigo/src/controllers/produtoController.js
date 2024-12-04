@@ -7,8 +7,7 @@ const {
     validarNomeProduto,
     validarPreco,
     validarEstoque,
-    validarId,
-    validarCamposObrigatoriosProdutoPut,
+    validarId
 
 } = require('../utils/validacoes'); // Importando as funções de validação
 
@@ -428,12 +427,7 @@ exports.obterEstoquePorNome = async (req, res) => {
 
         if (!nome) {
             return res.status(400).json({ message: 'Parâmetro "nome" é obrigatório.' });
-        }
-
-        // Validando o nome do produto
-        if (!validarNomeProduto(nome)) {
-            return res.status(400).json({ message: 'Nome de produto inválido. Apenas letras e espaços são permitidos.' });
-        }
+        }        
 
         // Buscar o produto pelo nome
         const produto = await Produtos.findOne({
