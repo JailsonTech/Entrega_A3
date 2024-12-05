@@ -97,7 +97,7 @@ const relatorioConsumoMedioId = async (req, res) => {
                 COALESCE(ROUND(AVG(v.total), 2), 0) AS consumo_medio_valor,
                 COALESCE(ROUND(AVG(v.quantidade), 0), 0) AS consumo_medio_produtos
             FROM clientes c
-            INNER JOIN vendas v ON c.id = v.clienteId 
+            INNER JOIN vendas v ON c.id = v.clienteId
             WHERE c.id = :clienteId
             GROUP BY c.id, c.nome
             ORDER BY total_gasto DESC;
@@ -109,7 +109,7 @@ const relatorioConsumoMedioId = async (req, res) => {
         );
 
         if (ConsumoMedio.length === 0) {
-            return res.status(404).json({ message: 'Nenhum consumo encontrado para este cliente.' });
+            return res.status(404).json({ message: 'Nenhuma relação de consumo encontrada para este cliente.' });
         }
 
         const relatorioExistente = await Relatorios.findOne({
@@ -157,7 +157,7 @@ const relatorioConsumoMedio = async (req, res) => {
         );
 
         if (ConsumoMedio.length === 0) {
-            return res.status(404).json({ message: 'Nenhum consumo encontrado para os clientes.' });
+            return res.status(404).json({ message: 'Nenhuma relação de consumo encontrada para os clientes.' });
         }
         
 

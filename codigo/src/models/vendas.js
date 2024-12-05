@@ -54,7 +54,4 @@ Venda.belongsTo(Cliente, { foreignKey: 'clienteId', onDelete: 'CASCADE' });
 Venda.belongsTo(Vendedor, { foreignKey: 'vendedorId', onDelete: 'CASCADE' });
 Venda.belongsTo(Produto, { foreignKey: 'produtoId', onDelete: 'CASCADE' });
 
-// Correção de associações e verificação das chaves estrangeiras
-Venda.hasMany(Produto, { foreignKey: 'produtoId', onDelete: 'CASCADE' });  // Adiciona o hasMany para Produto se necessário
-
 module.exports = Venda;
