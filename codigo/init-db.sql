@@ -95,7 +95,8 @@ INSERT INTO produtos (nome, preco, estoque) VALUES
 ('tapioca', 4.99, 36),
 ('detergente', 2.29, 66);
 
--- Criar tabela vendas
+DROP TABLE IF EXISTS vendas;
+
 CREATE TABLE vendas (
     id SERIAL PRIMARY KEY,
     clienteId INT NOT NULL,
@@ -108,6 +109,7 @@ CREATE TABLE vendas (
     FOREIGN KEY (vendedorId) REFERENCES vendedores(id) ON DELETE CASCADE,
     FOREIGN KEY (produtoId) REFERENCES produtos(id) ON DELETE CASCADE
 );
+
 
 -- Inserir dados iniciais de vendas
 INSERT INTO vendas (clienteId, vendedorId, produtoId, quantidade, total, data_venda) VALUES
