@@ -43,7 +43,7 @@ const relatorioBaixoEstoque = async (req, res) => {
         const LIMITE_ESTOQUE = 30;
 
         // Consulta direta ao banco de dados para buscar produtos com baixo estoque
-        const [BaixoEstoque] = await sequelize.query(
+        const BaixoEstoque = await sequelize.query(
             `SELECT * FROM produtos WHERE estoque < :limite ORDER BY estoque ASC LIMIT 5`,
             {
                 replacements: { limite: LIMITE_ESTOQUE },
@@ -80,13 +80,13 @@ const relatorioBaixoEstoque = async (req, res) => {
 
 const relatorioConsumoMedioId = async (req, res) => {
     try {
-        const { id } = req.params; // Obtém o ID do cliente da rota
+        const { id } = req.params;
 
         if (!id || isNaN(id)) {
             return res.status(400).json({ error: 'ID inválido ou nulo. Por favor, forneça um ID válido.' });
         }
 
-        const [ConsumoMedio] = await sequelize.query(
+        const ConsumoMedio = await sequelize.query(
             `
             SELECT 
                 c.id AS cliente_id,
@@ -103,7 +103,7 @@ const relatorioConsumoMedioId = async (req, res) => {
             ORDER BY total_gasto DESC;
             `,
             { 
-                replacements: { clienteId: id }, // Substitui o parâmetro na query
+                replacements: { clienteId: id },
                 type: Sequelize.QueryTypes.SELECT 
             }
         );
@@ -159,6 +159,24 @@ const relatorioConsumoMedio = async (req, res) => {
         if (ConsumoMedio.length === 0) {
             return res.status(404).json({ message: 'Nenhum consumo encontrado para os clientes.' });
         }
+        
+
+        // Organiza os dados, colocando cliente_id e cliente_nome primeiro
+        const relatorioFormatado = ConsumoMedio.map(cliente => {
+            const consumo_medio = {
+                total_vendas: cliente.total_vendas,
+                total_gasto: cliente.total_gasto,
+                total_produtos: cliente.total_produtos,
+                consumo_medio_valor: cliente.consumo_medio_valor,
+                consumo_medio_produtos: cliente.consumo_medio_produtos
+            };
+
+            return {
+                cliente_id: cliente.cliente_id,
+                cliente_nome: cliente.cliente_nome,
+                consumo_medio // A chave 'consumo_medio' ficará por último
+            };
+        });
 
         const relatorioExistente = await Relatorios.findOne({
             where: {
@@ -167,14 +185,14 @@ const relatorioConsumoMedio = async (req, res) => {
         });
 
         if (relatorioExistente) {
-            relatorioExistente.dados = ConsumoMedio;
+            relatorioExistente.dados = relatorioFormatado;
             await relatorioExistente.save();
             return res.status(200).json(relatorioExistente);
         } else {
             const relatorio = await Relatorios.create({
                 nome: 'Consumo Médio dos Clientes',
                 tipo: 'consumo-medio',
-                dados: ConsumoMedio,
+                dados: relatorioFormatado,
             });
             return res.status(200).json(relatorio);
         }
@@ -186,13 +204,13 @@ const relatorioConsumoMedio = async (req, res) => {
 
 const relatorioProdutosCliente = async (req, res) => {
     try {
-        const { id } = req.params; // Obtém o ID do cliente da rota
+        const { id } = req.params;
 
         if (!id || isNaN(id)) {
             return res.status(400).json({ error: 'ID inválido ou nulo. Por favor, forneça um ID válido.' });
         }
 
-        const [ProdutosClientes] = await sequelize.query(
+        const ProdutosClientes = await sequelize.query(
             `
             SELECT 
                 c.id AS cliente_id,
@@ -209,7 +227,7 @@ const relatorioProdutosCliente = async (req, res) => {
             ORDER BY p.id;
             `,
             { 
-                replacements: { clienteId: id }, // Substitui o parâmetro na query
+                replacements: { clienteId: id },
                 type: Sequelize.QueryTypes.SELECT 
             }
         );
@@ -218,6 +236,17 @@ const relatorioProdutosCliente = async (req, res) => {
             return res.status(404).json({ message: 'Nenhum produto encontrado para este cliente.' });
         }
 
+        const relatorioFormatado = ProdutosClientes.map(cliente => ({
+            cliente_id: cliente.cliente_id,
+            cliente_nome: cliente.cliente_nome,
+            produtos: ProdutosClientes.filter(produto => produto.cliente_id === cliente.cliente_id).map(produto => ({
+                produto_id: produto.produto_id,
+                produto_nome: produto.produto_nome,
+                total_compras: produto.total_compras,
+                quantidade_total: produto.quantidade_total,
+            })),
+        }))[0]; 
+
         const relatorioExistente = await Relatorios.findOne({
             where: {
                 tipo: { [Op.eq]: `produto-cliente-${id}` },
@@ -225,20 +254,67 @@ const relatorioProdutosCliente = async (req, res) => {
         });
 
         if (relatorioExistente) {
-            relatorioExistente.dados = relatorioProdutosClientes;
+            relatorioExistente.dados = relatorioFormatado;
             await relatorioExistente.save();
             return res.status(200).json(relatorioExistente);
         } else {
             const relatorio = await Relatorios.create({
                 nome: `Relatório de Produtos para Cliente ${id}`,
                 tipo: `produto-cliente-${id}`,
-                dados: ProdutosClientes,
+                dados: relatorioFormatado,
             });
             return res.status(200).json(relatorio);
         }
     } catch (error) {
         console.error('Erro ao gerar relatório de produtos por cliente:', error);
         return res.status(500).json({ error: 'Erro ao gerar relatório de produtos por cliente.' });
+    }
+};
+
+
+const relatorioMaisVendidos = async (req, res) => {
+    try {
+        const MaisVendidos = await sequelize.query(
+            `
+            SELECT 
+                p.id AS produto_id,
+                p.nome AS produto_nome,
+                SUM(v.quantidade) AS quantidade_total,
+                COUNT(v.id) AS total_vendas
+            FROM vendas v
+            INNER JOIN produtos p ON v.produtoId = p.id
+            GROUP BY p.id, p.nome
+            ORDER BY quantidade_total DESC
+            LIMIT 3;
+            `,
+            { type: Sequelize.QueryTypes.SELECT }
+        );
+
+        if (MaisVendidos.length === 0) {
+            return res.status(404).json({ message: 'Nenhum produto vendido encontrado.' });
+        }
+
+        const relatorioExistente = await Relatorios.findOne({
+            where: {
+                tipo: { [Op.eq]: 'mais-vendidos' },
+            },
+        });
+
+        if (relatorioExistente) {
+            relatorioExistente.dados = MaisVendidos;
+            await relatorioExistente.save();
+            return res.status(200).json(relatorioExistente);
+        } else {
+            const relatorio = await Relatorios.create({
+                nome: 'Relatório de Produtos Mais Vendidos',
+                tipo: 'mais-vendidos',
+                dados: MaisVendidos,
+            });
+            return res.status(200).json(relatorio);
+        }
+    } catch (error) {
+        console.error('Erro ao gerar relatório de produtos mais vendidos:', error);
+        return res.status(500).json({ error: 'Erro ao gerar relatório de produtos mais vendidos.' });
     }
 };
 
@@ -263,6 +339,7 @@ const deletarRelatorio = async (req, res) => {
 
 module.exports = {
     relatorioProdutosCliente,
+    relatorioMaisVendidos,
     relatorioConsumoMedio,
     relatorioConsumoMedioId,
     relatorioBaixoEstoque,
