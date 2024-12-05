@@ -39,9 +39,11 @@ exports.criarVendedor = async (req, res) => {
              return res.status(400).json({ message: erroCpf });
          }
 
-        // Verificar se o CPF já existe no banco
-        await verificarCpfExistente(Vendedor, cpf);  // Se já existir, erro será lançado
-
+         // Verificar se o CPF já existe no banco de dados para vendedor
+         const cpfExistente = await verificarCpfExistente(Vendedor, cpf);
+         if (cpfExistente) {
+             return res.status(400).json({ message: cpfExistente });
+         }
         // Validação do nome com mínimo de 2 caracteres
         const nomeMinimoError = validarNomeMinimo(nome);
         if (nomeMinimoError) {
@@ -492,3 +494,4 @@ exports.obterVendedorPorId = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar vendedor por ID.', error: error.message }); // Exibindo a mensagem de erro
     }
 };
+

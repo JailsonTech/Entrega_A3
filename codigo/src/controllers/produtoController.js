@@ -449,3 +449,5 @@ exports.obterEstoquePorNome = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar estoque do produto.', error: error.message });
     }
 };
+
+
