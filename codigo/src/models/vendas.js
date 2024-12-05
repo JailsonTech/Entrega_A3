@@ -49,15 +49,18 @@ const Venda = sequelize.define('venda', {
     timestamps: false,  // Desativa os campos createdAt e updatedAt
 });
 
-// Hook para calcular o total antes de criar a venda
 Venda.beforeCreate(async (venda, options) => {
-    const produto = await Produto.findByPk(venda.produtoId); // Busca o produto pelo ID
+    // Alterar para buscar pelo nome do produto
+    const produto = await Produto.findOne({ where: { nome: venda.produtoNome } });
+
     if (produto) {
+        venda.produtoId = produto.id;  // Atribui o ID do produto à venda
         venda.total = produto.preco * venda.quantidade;  // Calcula o total com base no preço do produto
     } else {
         throw new Error('Produto não encontrado.');  // Lança um erro caso o produto não seja encontrado
     }
 });
+
 
 // Relacionamentos
 Venda.belongsTo(Cliente, { foreignKey: 'clienteId', onDelete: 'CASCADE' });
