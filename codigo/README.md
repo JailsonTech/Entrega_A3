@@ -107,10 +107,10 @@ Atividade para avaliação Facs
 5. REALIZAR VENDA....................................................
    POST http://localhost:3000/vendas
 
-      {
-          "clienteNome": "João Silva",
-          "vendedorNome": "Maria Souza",
-          "nome": "Feijão",
+       {
+          "clienteNome": "Jailson",
+          "vendedorNome": "Alberto",
+          "produtoNome": "sal",
           "quantidade": 3
       }
 

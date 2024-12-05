@@ -9,25 +9,35 @@ const criarVenda = async (req, res) => {
     const { clienteNome, vendedorNome, produtoNome, quantidade } = req.body;
 
     try {
-        // Criar a venda diretamente, sem validação dos dados
+        // Buscar cliente, vendedor e produto
         const cliente = await Cliente.findOne({ where: { nome: clienteNome } });
         const vendedor = await Vendedor.findOne({ where: { nome: vendedorNome } });
         const produto = await Produto.findOne({ where: { nome: { [Op.iLike]: produtoNome } } });
 
-        // Criar a venda com os dados sem verificação
+        if (!produto) {
+            return res.status(404).json({ mensagem: 'Produto não encontrado.' });
+        }
+
+        // Verificar se o estoque é suficiente
+        if (produto.estoque < quantidade) {
+            return res.status(400).json({ mensagem: 'Estoque insuficiente para completar a venda.' });
+        }
+
+        // Calcular o total com 2 casas decimais e manter como número
+        const total = Math.round((produto.preco * quantidade) * 100) / 100;
+
+        // Criar a venda com os dados
         const venda = await Vendas.create({
-            clienteId: cliente ? cliente.id : null,    // Usar o ID do cliente ou null
-            vendedorId: vendedor ? vendedor.id : null,  // Usar o ID do vendedor ou null
-            produtoId: produto ? produto.id : null,    // Usar o ID do produto ou null
+            clienteId: cliente ? cliente.id : null,
+            vendedorId: vendedor ? vendedor.id : null,
+            produtoId: produto ? produto.id : null,
             quantidade,
-            total: produto ? produto.preco * quantidade : 0,  // Calcular total mesmo sem produto
+            total,  // Passar o total já arredondado
         });
 
-        // Atualizar estoque sem validação
-        if (produto) {
-            produto.estoque -= quantidade;
-            await produto.save();
-        }
+        // Atualizar estoque
+        produto.estoque -= quantidade;
+        await produto.save();
 
         // Retornar a venda criada com os dados de cliente, vendedor e produto
         return res.status(201).json({
@@ -35,7 +45,7 @@ const criarVenda = async (req, res) => {
             vendedorNome: vendedor ? vendedor.nome : 'Indefinido',
             produtoNome: produto ? produto.nome : 'Indefinido',
             quantidade,
-            total: produto ? produto.preco * quantidade : 0,  // Retornar o total calculado
+            total,  // Retornar o total já arredondado como número
         });
 
     } catch (error) {
