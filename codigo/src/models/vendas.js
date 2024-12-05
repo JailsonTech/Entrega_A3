@@ -1,5 +1,3 @@
-//models/vendas.js
-
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../utils/database'); // Conexão com o DB
 const Cliente = require('./clientes');  // Importa o modelo de Cliente
@@ -51,17 +49,13 @@ const Venda = sequelize.define('venda', {
     timestamps: false,  // Desativa os campos createdAt e updatedAt
 });
 
+// Hook para calcular o total antes de criar a venda
 Venda.beforeCreate(async (venda, options) => {
-    // Garantir que o total seja calculado corretamente
-    const produto = await Produto.findOne({ where: { nome: venda.produtoNome } });
-    if (!produto) {
-        throw new Error('Produto não encontrado.');
-    }
-    venda.produtoId = produto.id;
-    
-    // Calcular o total da venda
-    if (!venda.total) {
-        venda.total = produto.preco * venda.quantidade;
+    const produto = await Produto.findByPk(venda.produtoId); // Busca o produto pelo ID
+    if (produto) {
+        venda.total = produto.preco * venda.quantidade;  // Calcula o total com base no preço do produto
+    } else {
+        throw new Error('Produto não encontrado.');  // Lança um erro caso o produto não seja encontrado
     }
 });
 
