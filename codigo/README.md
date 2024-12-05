@@ -5,9 +5,9 @@ Atividade para avaliação Facs
 
 1. Estando na pasta 'codigo' execute 'docker-compose up --build -d'
 
-2. Opcional -> instale o postgres no dbeaver ou outra ferramenta de sua preferência para acompanhar o crud. 
+2. Opcional -> Instale o postgres no dbeaver ou outra ferramenta de sua preferência para acompanhar o crud no banco de dados. 
 
-3. Use a extensão do vscode -> 'thunder client' ou postman, insomnia para usar os métodos http
+3. Use a extensão do vscode -> 'thunder client', postman ou o insomnia para usar os métodos http
 
 # MÉTODOS HTTP
 
@@ -45,7 +45,7 @@ Atividade para avaliação Facs
         {
           "nome":"jailson",
           "cpf":"111.222.333-44",
-          "endereco:"Endereço A"
+          "endereco":"Endereço A"
         }
 
     * PUT / PATCH
@@ -119,12 +119,12 @@ Atividade para avaliação Facs
 
 8. CRUD RELATÓRIOS.......................................................
     * GET 
-      - (tudo)....... http://localhost:3030/relatorios/
       - (baixo-estoque)... http://localhost:3030/relatorios/baixo-estoque/
       - (mais-vendas) .... http://localhost:3030/relatorios/mais-vendas/
       - (consumo-medio) .... http://localhost:3030/relatorios/consumo-medio/
       - (consumo-medio-id) .... http://localhost:3030/relatorios/consumo-medio/#
       - (produto-cliente) .... http://localhost:3030/relatorios/produto-cliente/#
+      - (tudo)....... http://localhost:3030/relatorios/
 
     * DELETE
       - ..... http://localhost:3030/relatorios/#
