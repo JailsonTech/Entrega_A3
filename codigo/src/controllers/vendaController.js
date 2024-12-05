@@ -1,9 +1,11 @@
 //controllers/vendaController.js
 
-const Cliente = require('../models/clientes');  
-const Vendedor = require('../models/vendedores');  
-const Produto = require('../models/produtos');  
-const Venda = require('../models/vendas');  
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = require('../utils/database'); // Conexão com o DB
+const Cliente = require('./clientes');  // Importa o modelo de Cliente
+const Vendedor = require('./vendedores');  // Importa o modelo de Vendedor
+const Produto = require('./produtos');  // Importa o modelo de Produto
+const Venda = require('../models/vendas');
 
 const criarVenda = async (req, res) => {
     const { clienteNome, vendedorNome, produtoNome, quantidade } = req.body;
