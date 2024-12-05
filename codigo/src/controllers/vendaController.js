@@ -1,11 +1,7 @@
-//controllers/vendaController.js
-
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../utils/database'); // Conexão com o DB
-const Cliente = require('./clientes');  // Importa o modelo de Cliente
-const Vendedor = require('./vendedores');  // Importa o modelo de Vendedor
-const Produto = require('./produtos');  // Importa o modelo de Produto
-const Venda = require('../models/vendas');
+const Cliente = require('../models/clientes');  // Ajuste o caminho conforme necessário
+const Vendedor = require('../models/vendedores'); // Ajuste o caminho conforme necessário
+const Produto = require('../models/produtos');   // Ajuste o caminho conforme necessário
+const Vendas = require('../models/vendas');     // Ajuste o caminho conforme necessário
 
 const criarVenda = async (req, res) => {
     const { clienteNome, vendedorNome, produtoNome, quantidade } = req.body;
@@ -29,7 +25,7 @@ const criarVenda = async (req, res) => {
         }
 
         // Verificar se o produto existe
-        const produto = await Produto.findOne({ where: { nome: produtoNome } });
+        const produto = await Produto.findOne({ where: { nome: produtoNome } });  // Alterado para 'produtoNome'
         if (!produto) {
             return res.status(404).json({ mensagem: 'Produto não encontrado.' });
         }
@@ -39,13 +35,16 @@ const criarVenda = async (req, res) => {
             return res.status(400).json({ mensagem: 'Estoque insuficiente para realizar a venda.' });
         }
 
-        // Criar a venda com IDs
+        // Calcular o total
+        const total = produto.preco * quantidade;
+
+        // Criar a venda com nomes ao invés de IDs
         const venda = await Vendas.create({
-            clienteId: cliente.id,     // Usar o ID do cliente
-            vendedorId: vendedor.id,   // Usar o ID do vendedor
-            produtoNome,               // Passando o nome do produto
+            cliente_nome: cliente.nome,     // Usar o nome do cliente
+            vendedor_nome: vendedor.nome,   // Usar o nome do vendedor
+            produto_nome: produto.nome,     // Usar o nome do produto
             quantidade,
-            total: produto.preco * quantidade,  // Calculando o total aqui
+            total,  // Passar o total calculado explicitamente
         });
 
         // Atualizar o estoque do produto
@@ -56,17 +55,18 @@ const criarVenda = async (req, res) => {
         return res.status(201).json({
             clienteNome: cliente.nome,
             vendedorNome: vendedor.nome,
-            produtoNome: produto.nome,
+            nome: produto.nome,
             quantidade,
-            total: venda.total,  // Retornar o total calculado
+            total,  // Retornar o total calculado
         });
 
     } catch (error) {
         console.error('Erro ao criar venda:', error);
+        // Retornar informações detalhadas sobre o erro
         return res.status(500).json({
             mensagem: 'Erro ao criar venda.',
-            erro: error.message,
-            stack: error.stack,
+            erro: error.message,  // Mostrar a mensagem de erro completa
+            stack: error.stack,   // Mostrar a pilha de erros para diagnóstico
         });
     }
 };
