@@ -117,5 +117,14 @@ Atividade para avaliação Facs
 6. VISUALIZAR PRODUTO ESPECÍFICO E O ESTOQUE....................................
    GET http://localhost:3000/produtos/feijão/estoque
 
+8. CRUD RELATÓRIOS.......................................................
+    * GET 
+      - (tudo)....... http://localhost:3030/relatorios/
+      - (baixo-estoque)... http://localhost:3030/relatorios/baixo-estoque
+      - (mais-vendas) .... http://localhost:3030/relatorios/mais-vendas/
+      - (consumo-medio) .... http://localhost:3030/relatorios/consumo-medio/
+      - (consumo-medio-id) .... http://localhost:3030/relatorios/consumo-medio/#
+      - (produto-cliente) .... http://localhost:3030/relatorios/produto-cliente/#
 
-
+    * DELETE
+      - ..... http://localhost:3030/relatorios/#
