@@ -55,13 +55,13 @@ Venda.beforeCreate(async (venda, options) => {
     if (produto) {
         venda.total = produto.preco * venda.quantidade;  // Calcula o total com base no preço do produto
     } else {
-        venda.total = 0;  // Se o produto não for encontrado, o total será 0
+        throw new Error('Produto não encontrado.');  // Lança um erro caso o produto não seja encontrado
     }
 });
 
 // Relacionamentos
-Venda.belongsTo(Cliente, { foreignKey: 'clienteId' });
-Venda.belongsTo(Vendedor, { foreignKey: 'vendedorId' });
-Venda.belongsTo(Produto, { foreignKey: 'produtoId' });
+Venda.belongsTo(Cliente, { foreignKey: 'clienteId', onDelete: 'CASCADE' });
+Venda.belongsTo(Vendedor, { foreignKey: 'vendedorId', onDelete: 'CASCADE' });
+Venda.belongsTo(Produto, { foreignKey: 'produtoId', onDelete: 'CASCADE' });
 
 module.exports = Venda;

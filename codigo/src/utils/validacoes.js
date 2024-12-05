@@ -17,12 +17,11 @@ const validarCpf = (cpf) => {
     return null;
 };
 
-
-// Função para verificar se o CPF já existe no banco de dados
-const verificarCpfExistente = async (Cliente, cpf) => {
-    const clienteExistente = await Cliente.findOne({ where: { cpf } });
-    if (clienteExistente) {
-        throw new Error('CPF já cadastrado.');
+// Função para verificar se o CPF já existe no banco de dados cliente ou vendedor
+const verificarCpfExistente = async (modelo, cpf) => {
+    const entidadeExistente = await modelo.findOne({ where: { cpf } });
+    if (entidadeExistente) {
+        return 'CPF já cadastrado, insira outro.';  // Retorna a mensagem de erro se já existir
     }
 };
 

@@ -42,9 +42,9 @@ exports.criarCliente = async (req, res) => {
         }
 
         // Verificar se o CPF já existe no banco de dados
-        const clienteExistente = await Cliente.findOne({ where: { cpf } });
-        if (clienteExistente) {
-            return res.status(400).json({ message: 'CPF já cadastrado, insira outro.' });
+        const cpfExistente = await verificarCpfExistente(Cliente, cpf);
+        if (cpfExistente) {
+            return res.status(400).json({ message: cpfExistente });
         }
 
         // Validar o nome com mínimo de 2 caracteres
@@ -491,4 +491,7 @@ exports.obterClientes = async (req, res) => {
         res.status(500).json({ message: 'Erro ao obter clientes', error });
     }
 };
+
+
+
 
