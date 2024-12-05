@@ -54,7 +54,7 @@ Atividade para avaliação Facs
         {
           "nome":"jailson",
           "cpf":"111.222.333-44",
-          "endereco:"Endereço A"
+          "endereco":"Endereço A"
         }
 
     * DELETE
