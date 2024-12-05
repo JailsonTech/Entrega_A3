@@ -1,3 +1,5 @@
+//models/vendas.js
+
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../utils/database'); // Conexão com o DB
 const Cliente = require('./clientes');  // Importa o modelo de Cliente
@@ -50,17 +52,18 @@ const Venda = sequelize.define('venda', {
 });
 
 Venda.beforeCreate(async (venda, options) => {
-    // Alterar para buscar pelo nome do produto
+    // Garantir que o total seja calculado corretamente
     const produto = await Produto.findOne({ where: { nome: venda.produtoNome } });
-
-    if (produto) {
-        venda.produtoId = produto.id;  // Atribui o ID do produto à venda
-        venda.total = produto.preco * venda.quantidade;  // Calcula o total com base no preço do produto
-    } else {
-        throw new Error('Produto não encontrado.');  // Lança um erro caso o produto não seja encontrado
+    if (!produto) {
+        throw new Error('Produto não encontrado.');
+    }
+    venda.produtoId = produto.id;
+    
+    // Calcular o total da venda
+    if (!venda.total) {
+        venda.total = produto.preco * venda.quantidade;
     }
 });
-
 
 // Relacionamentos
 Venda.belongsTo(Cliente, { foreignKey: 'clienteId', onDelete: 'CASCADE' });
