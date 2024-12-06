@@ -1,3 +1,5 @@
+//codigo/relatorio-api/controllers/relatiorioController
+
 const Relatorios = require('../models/relatorios');
 const { Sequelize, Op } = require('sequelize');
 const sequelize = require('../utils/database');

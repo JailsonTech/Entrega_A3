@@ -1,4 +1,5 @@
-// src/models/relatorios.js
+//codigo/relatorio-api/src/models/relatorios.js
+
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../utils/database');
 

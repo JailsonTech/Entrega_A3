@@ -28,6 +28,36 @@ app.use('/produtos', produtoRoutes);   // Rota para produtos
 app.use('/vendas', vendaRoutes);       // Rota para vendas
 app.use('/pedidos', pedidoCompraRoutes); // Rota para pedidos de compra
 
+// Middleware para capturar métodos HTTP incorretos em qualquer rota "/clientes/*"
+app.all('/clientes/*', (req, res) => {
+    res.status(405).json({ message: `Método HTTP ${req.method} não permitido para esta rota. Use o método correto de acordo com a tabela de rotas. Leia o readme.md` });
+});
+
+// Middleware para capturar métodos HTTP incorretos em qualquer rota "/vendedores/*"
+app.all('/vendedores/*', (req, res) => {
+    res.status(405).json({ message: `Método HTTP ${req.method}  não permitido para esta rota. Use o método correto de acordo com a tabela de rotas. Leia o readme.md` });
+});
+
+// Middleware para capturar métodos HTTP incorretos em qualquer rota "/produtos/*"
+app.all('/produtos/*', (req, res) => {
+    res.status(405).json({ message: `Método HTTP ${req.method} não permitido para esta rota. Use o método correto de acordo com a tabela de rotas. Leia o readme.md` });
+});
+
+// Middleware para capturar métodos HTTP incorretos em qualquer rota "/pedidos/*"
+app.all('/pedidos/*', (req, res) => {
+    res.status(405).json({ message: `Método HTTP ${req.method} não permitido para esta rota. Use o método correto de acordo com a tabela de rotas. Leia o readme.md` });
+});
+
+// Middleware para capturar métodos HTTP incorretos em qualquer rota "/vendas/*"
+app.all('/vendas/*', (req, res) => {
+    res.status(405).json({ message: `Método HTTP ${req.method} não permitido para esta rota. Use o método correto de acordo com a tabela de rotas. Leia o readme.md` });
+});
+
+// Middleware para capturar métodos HTTP incorretos em qualquer rota "/relatorios/*"
+app.all('/relatorios/*', (req, res) => {
+    res.status(405).json({ message: `Método HTTP ${req.method} não permitido para esta rota. Use o método correto de acordo com a tabela de rotas. Leia o readme.md` });
+});
+
 // Função para verificar a conexão com o banco
 const checkDbConnection = async () => {
     try {

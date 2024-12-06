@@ -11,13 +11,13 @@ Atividade para avaliação Facs
 
 # MÉTODOS HTTP
 
-1. TABELA CLIENTES..........................................................
-    * GET 
+1. CLIENTES - 'CRUD'..........................................................
+    * 'GET' 
       - (tudo)....... http://localhost:3000/clientes  
-      - (por nome)... http://localhost:3000/clientes/nome/jair  
+      - (por nome)... http://localhost:3000/clientes/nome/jailson 
       - (por cpf) ... http://localhost:3000/clientes/cpf/111.222.333-44 
 
-    * POST
+    * 'POST'
       - http://localhost:3000/clientes
         {
           "nome":"jailson",
@@ -25,22 +25,22 @@ Atividade para avaliação Facs
           "endereco":"rua A bairro X"
         }
 
-    * PUT / PATCH
+    * 'PUT/PATCH'
       - (por cpf).... http://localhost:3000/clientes/cpf/111.222.333-44
       - (por Id)..... http://localhost:3000/clientes/id/1
 
-    * DELETE
+    * 'DELETE'
       - (por cpf).... http://localhost:3000/clientes/cpf/111.222.333-44
       - (por Id)..... http://localhost:3000/clientes/id/1
       - (todos)...... http://localhost:3000/clientes/todos
     
-2. TABELA VENDEDORES.......................................................
-    * GET 
+2. VENDEDORES - 'CRUD'.......................................................
+    * 'GET' 
       - (tudo)....... http://localhost:3000/vendedores
       - (por nome)... http://localhost:3000/vendedores/nome/jair  
       - (por cpf) ... http://localhost:3000/vendedores/cpf/111.222.333-44 
 
-    * POST
+    * 'POST'
       - http://localhost:3000/vendedores
         {
           "nome":"jailson",
@@ -48,7 +48,7 @@ Atividade para avaliação Facs
           "endereco":"Endereço A"
         }
 
-    * PUT / PATCH
+    * 'PUT/PATCH'
       - (por cpf).... http://localhost:3000/vendedores/cpf/111.222.333-44
       - (por Id)..... http://localhost:3000/vendedores/id/1
         {
@@ -57,12 +57,12 @@ Atividade para avaliação Facs
           "endereco":"Endereço A"
         }
 
-    * DELETE
+    * 'DELETE'
       - (por cpf).... http://localhost:3000/vendedores/cpf/111.222.333-44
       - (por Id)..... http://localhost:3000/vendedores/id/1
       - (todos)...... http://localhost:3000/vendedores/todos
 
-3. CRUD PRODUTOS.......................................................
+3. PRODUTOS - 'CRUD'.......................................................
     * GET 
       - (tudo)....... http://localhost:3000/produtos
       - (por nome)... http://localhost:3000/produtos/nome/farinha 
@@ -76,18 +76,17 @@ Atividade para avaliação Facs
           "estoque":50             
         }
 
-    * PUT / PATCH Atualiza ou "nome", ou "preco", ou "estoqe
+    * 'PUT/PATCH' Atualiza ou "nome", ou "preco", ou "estoqe
       - (por nome).... http://localhost:3000/produtos/nome/farinha
       - (por Id)...... http://localhost:3000/produtos/id/1
          
-
-    * DELETE
+    * 'DELETE'
       - (por nome).... http://localhost:3000/produtos/nome/farinha
       - (por Id)...... http://localhost:3000/produtos/id/1
       - (todos)....... http://localhost:3000/produtos/todos
       
 
-4. CRUD ESTOQUE (COMPRAR E CANCELAR)..................................
+4. PEDIDOS - 'CREATE/DELETE' (COMPRAR E CANCELAR)..................................
 
    * Receber pedido: 
      POST http://localhost:3000/pedidos/comprar
@@ -96,7 +95,6 @@ Atividade para avaliação Facs
           "quantidade": 222
         }
 
-
    * Cancelar pedido: 
      POST http://localhost:3000/pedidos/cancelar
         {
@@ -104,7 +102,7 @@ Atividade para avaliação Facs
           "quantidade": 5
         }
 
-5. REALIZAR VENDA....................................................
+5. VENDAS - 'CREATE'....................................................
    POST http://localhost:3000/vendas
 
        {
@@ -114,7 +112,7 @@ Atividade para avaliação Facs
           "quantidade": 3
       }
 
-6. VISUALIZAR PRODUTO ESPECÍFICO E O ESTOQUE....................................
+6. ESTOQUE - 'READ' POR PRODUTO....................................
    GET http://localhost:3000/produtos/feijão/estoque
 
 8. CRUD RELATÓRIOS.......................................................

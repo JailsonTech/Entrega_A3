@@ -1,3 +1,5 @@
+//codigo/src/controllers/vendaController.js
+
 const Cliente = require('../models/clientes');  // Ajuste o caminho conforme necessário
 const Vendedor = require('../models/vendedores'); // Ajuste o caminho conforme necessário
 const Produto = require('../models/produtos');   // Ajuste o caminho conforme necessário

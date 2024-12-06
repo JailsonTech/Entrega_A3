@@ -5,7 +5,6 @@ const Cliente = require('../models/clientes'); // Importando o modelo Cliente
 const { 
     verificarCpfExistente, 
     validarCpf, validarNome, 
-    validarCamposObrigatorios, 
     validarNomeMinimo,
     validarId
 } = require('../utils/validacoes');
@@ -44,7 +43,7 @@ exports.criarCliente = async (req, res) => {
         // Verificar se o CPF já existe no banco de dados
         const cpfExistente = await verificarCpfExistente(Cliente, cpf);
         if (cpfExistente) {
-            return res.status(400).json({ message: cpfExistente });
+            return res.status(400).json({ message: cpfExistente });  // Retorna a mensagem de erro se o CPF já existir
         }
 
         // Validar o nome com mínimo de 2 caracteres
@@ -68,12 +67,8 @@ exports.criarCliente = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        // Tratando erro de violação de CPF único
-        if (error.name === 'SequelizeUniqueConstraintError') {
-            return res.status(400).json({ message: 'CPF já cadastrado, insira outro.' });
-        }
-
-        // Para outros erros
+        
+        // Para outros erros (incluindo erros inesperados)
         res.status(500).json({ message: 'Erro ao criar cliente', error });
     }
 };
@@ -210,7 +205,7 @@ exports.atualizarClientePorCpf = async (req, res) => {
         // Se houver chaves não válidas no corpo
         for (let chave of chavesRecebidas) {
             if (!chavesValidas.includes(chave)) {
-                return res.status(400).json({ message: `Chave '${chave}' errada ou ausente.` });
+                return res.status(400).json({ message: `Chave '${chave}' errada.` });
             }
         }
 
