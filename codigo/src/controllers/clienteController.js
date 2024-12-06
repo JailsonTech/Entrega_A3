@@ -85,14 +85,14 @@ exports.atualizarClientePorId = async (req, res) => {
             return res.status(400).json({ message: erroId });
         }
 
-        // Verificar se o corpo da requisição contém chaves erradas 
+        // Verificar se o corpo da requisição contém chaves erradas (diferentes de "nome", "cpf", "endereco")
         const chavesValidas = ['nome', 'cpf', 'endereco'];
         const chavesRecebidas = Object.keys(req.body);
-        
+
         // Se houver chaves não válidas no corpo
         for (let chave of chavesRecebidas) {
             if (!chavesValidas.includes(chave)) {
-                return res.status(400).json({ message: `Chave '${chave}' errada ou ausente.` });
+                return res.status(400).json({ message: `Chave errada -> '${chave}'` });
             }
         }
 
@@ -205,7 +205,7 @@ exports.atualizarClientePorCpf = async (req, res) => {
         // Se houver chaves não válidas no corpo
         for (let chave of chavesRecebidas) {
             if (!chavesValidas.includes(chave)) {
-                return res.status(400).json({ message: `Chave '${chave}' errada.` });
+                return res.status(400).json({ message: `Chave errada -> '${chave}'` });
             }
         }
 

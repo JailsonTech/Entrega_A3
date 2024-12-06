@@ -16,7 +16,7 @@ app.use(express.json());    // Faz o parse do corpo da requisição como JSON
 // Middleware para capturar erros de sintaxe JSON
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError) { // Se o erro for de sintaxe JSON
-        return res.status(400).json({ message: 'Erro no formato do JSON. Certifique-se de que os dados estão corretos' });
+        return res.status(400).json({ message: 'Erro no formato do JSON. Certifique-se de que os dados estão corretos. Leia o readme.md' });
     }
     next(); // Se o erro não for de sintaxe, passa para o próximo middleware ou controlador
 });

@@ -153,6 +153,30 @@ const validarEstoque = (estoque) => {
     return { valid: true };
 };
 
+// Função para validar a quantidade (número inteiro positivo)
+const validarQuantidade = (quantidade) => {
+    // Garantir que a quantidade seja um número
+    if (typeof quantidade !== 'number' || isNaN(quantidade)) {
+        return { valid: false, message: `A quantidade '${quantidade}' deve ser um número válido.` };
+    }
+
+    // Garantir que a quantidade seja um número inteiro
+    if (!Number.isInteger(quantidade)) {
+        return { valid: false, message: 'A quantidade deve ser um número inteiro.' };
+    }
+
+    // Garantir que a quantidade seja maior que zero
+    if (quantidade <= 0) {
+        return { valid: false, message: 'A quantidade deve ser maior que zero.' };
+    }
+
+    // Se a quantidade for válida, retorna como válida
+    return { valid: true, message: '' };
+};
+
+module.exports = { validarQuantidade };
+
+
 // Exemplo de como salvar no DB
 const salvarProdutoNoDb = async (Produto, nome, preco, estoque) => {
     try {
@@ -250,4 +274,5 @@ module.exports = {
     verificarProdutoExistente,
     salvarProdutoNoDb,
     validarId,
+    validarQuantidade,
 };
