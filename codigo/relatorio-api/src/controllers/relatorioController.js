@@ -99,13 +99,13 @@ const relatorioConsumoMedioId = async (req, res) => {
                 COALESCE(ROUND(AVG(v.total), 2), 0) AS consumo_medio_valor,
                 COALESCE(ROUND(AVG(v.quantidade), 0), 0) AS consumo_medio_produtos
             FROM clientes c
-            INNER JOIN vendas v ON c.id = v.clienteId
-            WHERE c.id = :clienteId
+            INNER JOIN vendas v ON c.id = v.cliente_id
+            WHERE c.id = :cliente_id
             GROUP BY c.id, c.nome
             ORDER BY total_gasto DESC;
             `,
             { 
-                replacements: { clienteId: id },
+                replacements: { cliente_id: id },
                 type: Sequelize.QueryTypes.SELECT 
             }
         );
@@ -151,7 +151,7 @@ const relatorioConsumoMedio = async (req, res) => {
                 COALESCE(ROUND(AVG(v.total), 2), 0) AS consumo_medio_valor,
                 COALESCE(ROUND(AVG(v.quantidade), 0), 0) AS consumo_medio_produtos
             FROM clientes c
-            INNER JOIN vendas v ON c.id = v.clienteId 
+            INNER JOIN vendas v ON c.id = v.cliente_id 
             GROUP BY c.id, c.nome
             ORDER BY total_gasto DESC;
             `,
@@ -222,14 +222,14 @@ const relatorioProdutosCliente = async (req, res) => {
                 COUNT(v.id) AS total_compras,
                 SUM(v.quantidade) AS quantidade_total
             FROM vendas v
-            INNER JOIN clientes c ON v.clienteId = c.id
-            INNER JOIN produtos p ON v.produtoId = p.id
-            WHERE c.id = :clienteId
+            INNER JOIN clientes c ON v.cliente_id = c.id
+            INNER JOIN produtos p ON v.produto_id = p.id
+            WHERE c.id = :cliente_id
             GROUP BY c.id, c.nome, p.id, p.nome
             ORDER BY p.id;
             `,
             { 
-                replacements: { clienteId: id },
+                replacements: { cliente_id: id },
                 type: Sequelize.QueryTypes.SELECT 
             }
         );
@@ -284,7 +284,7 @@ const relatorioMaisVendidos = async (req, res) => {
                 SUM(v.quantidade) AS quantidade_total,
                 COUNT(v.id) AS total_vendas
             FROM vendas v
-            INNER JOIN produtos p ON v.produtoId = p.id
+            INNER JOIN produtos p ON v.produto_id = p.id
             GROUP BY p.id, p.nome
             ORDER BY quantidade_total DESC
             LIMIT 3;
