@@ -120,11 +120,11 @@ Atividade para avaliação Facs
 8. CRUD RELATÓRIOS.......................................................
     * GET 
       - (baixo-estoque)... http://localhost:3030/relatorios/baixo-estoque/
-      - (mais-vendas) .... http://localhost:3030/relatorios/mais-vendas/
+      - (mais-vendidos) .... http://localhost:3030/relatorios/mais-vendidos/
       - (consumo-medio) .... http://localhost:3030/relatorios/consumo-medio/
-      - (consumo-medio-id) .... http://localhost:3030/relatorios/consumo-medio/#
-      - (produto-cliente) .... http://localhost:3030/relatorios/produto-cliente/#
+      - (consumo-medio-id) .... http://localhost:3030/relatorios/consumo-medio/:id
+      - (produto-cliente) .... http://localhost:3030/relatorios/produto-cliente/:id
       - (tudo)....... http://localhost:3030/relatorios/
 
     * DELETE
-      - ..... http://localhost:3030/relatorios/#
+      - ..... http://localhost:3030/relatorios/:id

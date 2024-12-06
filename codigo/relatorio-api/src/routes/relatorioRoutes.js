@@ -22,9 +22,9 @@ router.get('/produto-cliente/:id', relatorioController.relatorioProdutosCliente)
 // Todos com apenas (/:id) serão passados para baixo por conta de um erro ao realizar consultas, tratando os acima como se fossem o :id
 
 // Rota para obter um relatório específico por ID
-router.get('/:id', relatorioController.obterRelatorioPorId); 
+router.get('/id/:id', relatorioController.obterRelatorioPorId); 
 
 // Rota para deletar relatório por ID
-router.delete('/:id', relatorioController.deletarRelatorio);
+router.delete('/id/:id', relatorioController.deletarRelatorio);
 
 module.exports = router;
